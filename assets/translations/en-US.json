@@ -1,0 +1,14 @@
+{
+    "app":"Application",
+    "login":"LogIn",
+    "register":"SignUp",
+    "hello":"Hello",
+    "language":"English",
+    "email":"Email ID",
+    "password":"Password",
+    "phone number":"Phone Number",
+    "forgot password":"Forgot Password?",
+    "are you new to this app":"Are you new to this app?",
+    "changelanguage":"Change Language",
+    "Please enter a valid email address.":"Please enter a valid email address."
+}

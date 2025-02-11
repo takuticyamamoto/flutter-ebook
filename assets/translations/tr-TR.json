@@ -1,0 +1,15 @@
+{
+    "app":"Application",
+    "login":"ログイン",
+    "register":"登録",
+    "hello":"こんにちは！",
+    "language":"日本語",
+    "email":"メールアドレス",
+    "password":"パスワード",
+    "phone number":"電話番号",
+    "forgot password":"Forgot Password?",
+    "are you new to this app":"アプリが初めてですか?",
+    "changelanguage":"Change Language",
+    "Please enter a valid email address.":"Please enter a valid email address."
+
+}
