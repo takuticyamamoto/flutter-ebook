@@ -3,14 +3,11 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:ebook_app/Services/auth_gate.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'firebase_options.dart';
-import 'dart:async';
-import 'dart:io';
-
-import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:flutter_pdfview/flutter_pdfview.dart';
+// import 'dart:async';
+// import 'dart:io';
+// import 'package:flutter/material.dart';
+// import 'package:path_provider/path_provider.dart';
+// import 'package:flutter_pdfview/flutter_pdfview.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
