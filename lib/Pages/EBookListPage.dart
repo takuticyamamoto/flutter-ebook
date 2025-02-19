@@ -69,8 +69,12 @@ class _EbooklistpageState extends State<EBookListPage> {
                         context,
                         MaterialPageRoute(
                           builder: (context) {
-                            // return PDFScreen(
-                            return PDFXPage(
+                            // return PDFXPage(
+                            //   pdfName: pdfFiles[index]['name'] ?? '',
+                            //   pdfURL: pdfFiles[index]['url'] ?? '',
+                            // );
+
+                            return Pdfscreen(
                               pdfName: pdfFiles[index]['name'] ?? '',
                               pdfURL: pdfFiles[index]['url'] ?? '',
                             );

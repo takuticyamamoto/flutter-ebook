@@ -1,274 +1,567 @@
-import 'dart:async';
-import 'dart:io';
-
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_ebook/Pages/Audio_Record.dart';
+import 'package:flutter_ebook/data/global.dart';
+import 'dart:async';
+import 'dart:io';
+import 'package:animated_icon/animated_icon.dart';
+import 'package:flutter/foundation.dart';
+import 'package:just_audio/just_audio.dart';
+import 'dart:math';
+// import 'package:flutter_sound/flutter_sound.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:flutter_pdfview/flutter_pdfview.dart';
+import '../Widgets/animation.dart';
+import 'package:http/http.dart' as http;
+import 'package:path/path.dart' as path;
+import 'package:record/record.dart';
+import 'package:flutter_cached_pdfview/flutter_cached_pdfview.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'package:audio_waveforms/audio_waveforms.dart';
+// import 'package:cache_audio_player_plus/cache_audio_player_plus.dart';
+import 'package:pdfx/pdfx.dart';
+import 'package:flutter_cache_manager/flutter_cache_manager.dart';
+import 'package:animated_icon/animated_icon.dart';
+// import 'animate_icon_screen.dart';
 
-class PDFPreviewScreen extends StatefulWidget {
+class Pdfscreen extends StatefulWidget {
+  final String pdfURL;
+  final String pdfName;
+  const Pdfscreen({super.key, required this.pdfURL, required this.pdfName});
+
   @override
-  _PDFPreviewScreenState createState() => _PDFPreviewScreenState();
+  State<Pdfscreen> createState() => _PdfxpageState();
 }
 
-class _PDFPreviewScreenState extends State<PDFPreviewScreen> {
-  String pathPDF = "";
-  String landscapePathPdf = "";
-  String remotePDFpath = "";
-  String corruptedPathPDF = "";
+class _PdfxpageState extends State<Pdfscreen> {
+  //=================================================================              pdf              ============================================================
+
+  String pdfPath = "";
+  int totalPage = 1;
+  int currentPage = 1;
+  PdfControllerPinch pdfControllerPinch = PdfControllerPinch(
+    document: PdfDocument.openAsset('assets/books/pdf.pdf'),
+  );
+  PDFViewController? pdfViewController;
+
+  //=================================================================             audio             ============================================================
+
+  bool isRecording = false;
+  bool isRecordingPasued = false;
+  bool isRecordPlaying = false;
+  bool isRecordPaused = false;
+  bool isMyRecordPlaying = false;
+  bool isMyRecordPaused = false;
+  bool isRecorderInitialized = false;
+  // bool get _isRecording => audioRecorder!.isRecording;
+  String recordingPath = '';
+
+  // final player = CacheAudioPlayerPlus();
+  // FlutterSoundRecorder? audioRecorder;
+  // late final RecorderControll  er recorderController;
+
+  final AudioRecorder audioRecorder = AudioRecorder();
+  final AudioPlayer audioPlayer = AudioPlayer();
+
+  //=================================================================              initiate              ============================================================
 
   @override
   void initState() {
     super.initState();
-    fromAsset(
-      'assets/books/Shigoto_no_nihongo_IT_Gyoumuhen.pdf',
-      'pdf.pdf',
-    ).then((f) {
-      setState(() {
-        corruptedPathPDF = f.path;
-      });
-    });
-    fromAsset(
-      'assets/books/Shigoto_no_nihongo_IT_Gyoumuhen.pdf',
-      'pdf.pdf',
-    ).then((f) {
-      setState(() {
-        pathPDF = f.path;
-      });
-    });
-    fromAsset(
-      'assets/books/Shigoto_no_nihongo_IT_Gyoumuhen.pdf',
-      'pdf.pdf',
-    ).then((f) {
-      setState(() {
-        landscapePathPdf = f.path;
-      });
-    });
-
-    createFileOfPdfUrl('').then((f) {
-      setState(() {
-        remotePDFpath = f.path;
-      });
-    });
+    initiate();
   }
 
-  Future<File> createFileOfPdfUrl(String pdfURL) async {
+  initiate() async {
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.landscapeLeft,
+      DeviceOrientation.landscapeRight,
+    ]);
+
+    await loadPdf(widget.pdfURL);
+    final status = await Permission.microphone.request();
+    if (status != PermissionStatus.granted) {
+      // throw RecordingPermissionException('Micorphone permission');
+    }
+
+    //------------------------------------------------------------------------------------------------
+
+    // audioRecorder = FlutterSoundRecorder();
+    // await audioRecorder!.openRecorder();
+    isRecorderInitialized = true;
+    setState(() {});
+  }
+
+  //=================================================================              pdf              ============================================================
+
+  Future<String> createFileOfPdfUrl(String pdfURL) async {
     Completer<File> completer = Completer();
     print("Start download file from internet!");
     try {
-      // "https://berlin2017.droidcon.cod.newthinking.net/sites/global.droidcon.cod.newthinking.net/files/media/documents/Flutter%20-%2060FPS%20UI%20of%20the%20future%20%20-%20DroidconDE%2017.pdf";
-      // final url = "https://pdfkit.org/docs/guide.pdf";
       final url = pdfURL;
-      final filename = url.substring(url.lastIndexOf("/") + 1);
       var request = await HttpClient().getUrl(Uri.parse(url));
       var response = await request.close();
       var bytes = await consolidateHttpClientResponseBytes(response);
       var dir = await getApplicationDocumentsDirectory();
-      print("Download files");
-      print("${dir.path}/$filename");
-      File file = File("${dir.path}/$filename");
-
+      File file = File("${dir.path}/${widget.pdfName}");
       await file.writeAsBytes(bytes, flush: true);
       completer.complete(file);
+      return file.path;
     } catch (e) {
       throw Exception('Error parsing asset file!');
     }
-
-    return completer.future;
   }
 
-  Future<File> fromAsset(String asset, String filename) async {
-    // To open from assets, you can copy them to the app storage folder, and the access them "locally"
-    Completer<File> completer = Completer();
+  Future<String?> cachePdf(String url) async {
+    final file = await DefaultCacheManager().getSingleFile(url);
+    return file.path; // Returns the cached file path
+  }
 
-    try {
-      var dir = await getApplicationDocumentsDirectory();
-      File file = File("${dir.path}/$filename");
-      var data = await rootBundle.load(asset);
-      var bytes = data.buffer.asUint8List();
-      await file.writeAsBytes(bytes, flush: true);
-      completer.complete(file);
-    } catch (e) {
-      throw Exception('Error parsing asset file!');
+  Future<void> loadPdf(String url) async {
+    String? cachedPath = await cachePdf(url);
+    if (cachedPath != null) {
+      setState(() {
+        pdfPath = cachedPath;
+      });
+      pdfControllerPinch = PdfControllerPinch(
+        document: PdfDocument.openFile(cachedPath),
+      );
     }
-
-    return completer.future;
   }
+
+  //=================================================================             record             ============================================================
+
+  _recordStart() async {
+    if (await audioRecorder.hasPermission()) {
+      final Directory appDir = await getApplicationDocumentsDirectory();
+      final String filePath = path.join(appDir.path, 'recording.wav');
+      await audioRecorder.start(const RecordConfig(), path: filePath);
+      setState(() {
+        isRecording = true;
+        isRecordingPasued = false;
+      });
+    }
+  }
+
+  _recordStop() async {
+    String? filePath = await audioRecorder.stop();
+    if (filePath != null) {
+      setState(() {
+        isRecording = false;
+        recordingPath = filePath;
+        print(recordingPath);
+      });
+    }
+  }
+
+  _recordPause() async {
+    await audioPlayer.pause();
+    setState(() {
+      isRecordingPasued = true;
+      isRecording = true;
+    });
+    // await audioRecorder!.pauseRecorder();
+  }
+
+  //=================================================================             my audio             ============================================================
+
+  _myAudioStart() async {
+    print('play is called ');
+    await audioPlayer.setFilePath(recordingPath);
+    audioPlayer.play();
+    setState(() {
+      isMyRecordPlaying = true;
+      isMyRecordPaused = false;
+    });
+  }
+
+  Future _myAudioStop() async {
+    if (!isRecorderInitialized) return;
+    String? filePath = await audioRecorder.stop();
+    if (filePath != null) {
+      setState(() {
+        isRecording = false;
+        recordingPath = filePath;
+      });
+    }
+  }
+
+  Future _myAudioPause() async {
+    if (!isRecorderInitialized) return;
+    audioPlayer.pause();
+    setState(() {
+      isMyRecordPaused = true;
+      isMyRecordPlaying = true;
+    });
+  }
+
+  //=================================================================             my audio             ============================================================
+
+  Future _bookAudioStart() async {
+    if (await audioRecorder.hasPermission()) {
+      final Directory appDir = await getApplicationDocumentsDirectory();
+      final String filePath = path.join(appDir.path, 'recording.wav');
+      await audioRecorder.start(const RecordConfig(), path: filePath);
+      setState(() {
+        isRecording = true;
+        isRecordingPasued = false;
+      });
+    }
+  }
+
+  Future _bookAudioStop() async {
+    if (!isRecorderInitialized) return;
+    String? filePath = await audioRecorder.stop();
+    if (filePath != null) {
+      setState(() {
+        isRecording = false;
+        recordingPath = filePath;
+      });
+    }
+  }
+
+  Future _bookAudioPause() async {
+    if (!isRecorderInitialized) return;
+    // await audioRecorder!.pauseRecorder();
+  }
+
+  //=================================================================             dispose             ============================================================
+
+  @override
+  void dispose() {
+    if (!isRecorderInitialized) return;
+    // Reset to default orientation when exiting
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+      DeviceOrientation.portraitDown,
+    ]);
+
+    // audioRecorder!.closeRecorder();
+    isRecorderInitialized = false;
+    super.dispose();
+  }
+
+  //=================================================================             save file confirmation             ============================================================
+
+  Future<void> saveConfirmation(BuildContext context) async {
+    await _recordPause();
+    bool? shouldSave = await showDialog<bool>(
+      context: context,
+      builder: (BuildContext dialogContext) {
+        return AlertDialog(
+          title: const Text('Save Confirmation'),
+          content: const Text('Are you sure you want to delete this file?'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(dialogContext).pop(false); // User pressed Cancel
+              },
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(dialogContext).pop(true); // User pressed Delete
+              },
+              child: const Text('save', style: TextStyle(color: Colors.red)),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (shouldSave == true) {
+      try {
+        await _recordStop();
+        
+      } catch (e) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Failed to save file: $e')));
+      }
+    }
+  }
+
+  //=================================================================             widget             ============================================================
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Flutter PDF View',
-      debugShowCheckedModeBanner: false,
-      home: Scaffold(
-        appBar: AppBar(title: const Text('Plugin example app')),
-        body: Center(
-          child: Builder(
-            builder: (BuildContext context) {
-              return Column(
-                children: <Widget>[
-                  TextButton(
-                    child: Text("Open PDF"),
-                    onPressed: () {
-                      if (pathPDF.isNotEmpty) {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => PDFScreen(pdfURL: pathPDF),
-                          ),
-                        );
-                      }
-                    },
+    return Scaffold(
+      backgroundColor: Colors.white,
+      appBar: AppBar(
+        foregroundColor: Colors.white,
+        title: Row(
+          children: [
+            Expanded(
+              child: Text(path.basenameWithoutExtension(widget.pdfName)),
+            ),
+            pageNavigation(),
+          ],
+        ),
+        backgroundColor: const Color.fromARGB(255, 54, 200, 244),
+        toolbarHeight: 40,
+      ),
+      body: Column(
+        children: [
+          SizedBox(
+            width: MediaQuery.of(context).size.width,
+            height: MediaQuery.of(context).size.height - 50 - 45,
+            child:
+                pdfPath == ''
+                    ? const Center(child: CircularProgressIndicator())
+                    : pdfView(),
+          ),
+          Expanded(
+            child: SizedBox(
+              height: 30,
+
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                mainAxisSize: MainAxisSize.max,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Expanded(
+                    child: SizedBox(
+                      width: MediaQuery.of(context).size.width * 0.1,
+                    ),
                   ),
-                  TextButton(
-                    child: Text("Open Landscape PDF"),
-                    onPressed: () {
-                      if (landscapePathPdf.isNotEmpty) {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder:
-                                (context) =>
-                                    PDFScreen(pdfURL: landscapePathPdf),
-                          ),
-                        );
-                      }
-                    },
+                  Expanded(
+                    child: SizedBox(
+                      width: MediaQuery.of(context).size.width * 0.3,
+                      child: playRecord(),
+                    ),
                   ),
-                  TextButton(
-                    child: Text("Remote PDF"),
-                    onPressed: () {
-                      if (remotePDFpath.isNotEmpty) {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder:
-                                (context) => PDFScreen(pdfURL: remotePDFpath),
-                          ),
-                        );
-                      }
-                    },
+                  Expanded(
+                    child: SizedBox(
+                      width: MediaQuery.of(context).size.width * 0.3,
+                      child: myRecode(),
+                    ),
                   ),
-                  TextButton(
-                    child: Text("Open Corrupted PDF"),
-                    onPressed: () {
-                      if (pathPDF.isNotEmpty) {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder:
-                                (context) =>
-                                    PDFScreen(pdfURL: corruptedPathPDF),
-                          ),
-                        );
-                      }
-                    },
+                  Expanded(
+                    child: SizedBox(
+                      width: MediaQuery.of(context).size.width * 0.3,
+                      child: recordMe(),
+                    ),
                   ),
                 ],
-              );
-            },
+              ),
+            ),
           ),
-        ),
+        ],
       ),
     );
   }
-}
 
-class PDFScreen extends StatefulWidget {
-  final String pdfURL;
+  Widget pdfView() {
+    return
+    //  Expanded(
+    //   child:
+    PdfViewPinch(
+      scrollDirection: Axis.horizontal,
+      controller: pdfControllerPinch,
+      onDocumentLoaded: (doc) {
+        setState(() {
+          totalPage = doc.pagesCount;
+        });
+      },
+      onPageChanged: (page) {
+        setState(() {
+          currentPage = page;
+          globalData.currentPage = page;
+        });
+      },
+      // ),
+    );
+  }
 
-  PDFScreen({super.key, required this.pdfURL});
-
-  _PDFScreenState createState() => _PDFScreenState();
-}
-
-class _PDFScreenState extends State<PDFScreen> with WidgetsBindingObserver {
-  final Completer<PDFViewController> _controller =
-      Completer<PDFViewController>();
-  int? pages = 0;
-  int? currentPage = 0;
-  bool isReady = false;
-  String errorMessage = '';
-
-  @override
-  Widget build(BuildContext context) {
-    print(widget.pdfURL);
-    return Scaffold(
-      appBar: AppBar(
-        title: Text("Document"),
-        actions: <Widget>[
-          IconButton(icon: Icon(Icons.share), onPressed: () {}),
-        ],
-      ),
-      body: Stack(
-        children: <Widget>[
-          PDFView(
-            // filePath: widget.path,
-            filePath: widget.pdfURL,
-            enableSwipe: true,
-            swipeHorizontal: true,
-            autoSpacing: false,
-            pageFling: true,
-            pageSnap: true,
-            defaultPage: currentPage!,
-            fitPolicy: FitPolicy.BOTH,
-            preventLinkNavigation:
-                false, // if set to true the link is handled in flutter
-            backgroundColor: Colors.black,
-            onRender: (_pages) {
-              setState(() {
-                pages = _pages;
-                isReady = true;
-              });
-            },
-            onError: (error) {
-              setState(() {
-                errorMessage = error.toString();
-              });
-              print(error.toString());
-            },
-            onPageError: (page, error) {
-              setState(() {
-                errorMessage = '$page: ${error.toString()}';
-              });
-              print('$page: ${error.toString()}');
-            },
-            onViewCreated: (PDFViewController pdfViewController) {
-              _controller.complete(pdfViewController);
-            },
-            onLinkHandler: (String? uri) {
-              print('goto uri: $uri');
-            },
-            onPageChanged: (int? page, int? total) {
-              print('page change: ${page ?? 0 + 1}/$total');
-              setState(() {
-                currentPage = page;
-              });
-            },
-          ),
-          errorMessage.isEmpty
-              ? !isReady
-                  ? Center(child: CircularProgressIndicator())
-                  : Container()
-              : Center(child: Text(errorMessage)),
-        ],
-      ),
-      floatingActionButton: FutureBuilder<PDFViewController>(
-        future: _controller.future,
-        builder: (context, AsyncSnapshot<PDFViewController> snapshot) {
-          if (snapshot.hasData) {
-            return FloatingActionButton.extended(
-              label: Text("Go to ${pages! ~/ 2}"),
-              onPressed: () async {
-                await snapshot.data!.setPage(pages! ~/ 2);
-              },
+  Widget pageNavigation() {
+    return Row(
+      children: [
+        SizedBox(width: MediaQuery.of(context).size.width * 0.2),
+        IconButton(
+          onPressed: () async {
+            await pdfControllerPinch.previousPage(
+              duration: Duration(microseconds: 200),
+              curve: Curves.linear,
             );
-          }
+            setState(() {
+              currentPage = pdfControllerPinch.page;
+            });
+          },
+          padding: EdgeInsets.zero,
+          icon: Icon(Icons.skip_previous),
+        ),
+        Text('${currentPage.toString()}    /    ${totalPage}'),
+        IconButton(
+          onPressed: () async {
+            await pdfControllerPinch.nextPage(
+              duration: Duration(microseconds: 200),
+              curve: Curves.linear,
+            );
+            setState(() {
+              currentPage = pdfControllerPinch.page;
+            });
+          },
+          padding: EdgeInsets.zero,
+          icon: Icon(Icons.skip_next),
+        ),
+      ],
+    );
+  }
 
-          return Container();
-        },
-      ),
+  Widget playRecord() {
+    return Row(
+      children: [
+        IconButton(
+          onPressed: () async {
+            setState(() {
+              isMyRecordPaused = true;
+              isRecordingPasued = true;
+            });
+            if (isRecordPaused && isRecordPlaying) {
+              setState(() {
+                isRecordPaused = false;
+                isRecordPlaying = true;
+              });
+            } else if (!isRecordPaused && isRecordPlaying) {
+              setState(() {
+                isRecordPaused = true;
+                isRecordPlaying = true;
+              });
+            } else {
+              setState(() {
+                isRecordPlaying = true;
+                isRecordPaused = false;
+              });
+            }
+          },
+          padding: EdgeInsets.zero,
+          icon: Icon(
+            isRecordPlaying
+                ? !isRecordPaused
+                    ? Icons.pause
+                    : Icons.play_arrow
+                : Icons.play_arrow,
+          ),
+        ),
+
+        isRecordPlaying
+            ? IconButton(
+              onPressed: () {
+                setState(() {
+                  isRecordPlaying = false;
+                });
+              },
+              padding: EdgeInsets.zero,
+              icon: Icon(isRecordPlaying ? Icons.stop : Icons.pause),
+            )
+            : SizedBox.shrink(),
+      ],
+    );
+  }
+
+  // icon: Image.asset('assets/icons/reading.png', width: 24, height: 24),
+  Widget myRecode() {
+    return Row(
+      children: [
+        IconButton(
+          onPressed: () async {
+            setState(() {
+              // isRecordPaused = true;
+              // isRecordingPasued = true;
+            });
+            if (isMyRecordPaused && isMyRecordPlaying) {
+              setState(() {
+                isMyRecordPaused = false;
+                isMyRecordPlaying = true;
+              });
+            } else if (!isMyRecordPaused && isMyRecordPlaying) {
+              await _myAudioPause();
+              // setState(() {
+              //   isMyRecordPaused = true;
+              //   isMyRecordPlaying = true;
+              // });
+            } else {
+              await _myAudioStart();
+              // setState(() {
+              //   isMyRecordPlaying = true;
+              //   isMyRecordPaused = false;
+              // });
+            }
+          },
+          padding: EdgeInsets.zero,
+          icon:
+              isMyRecordPlaying
+                  ? !isMyRecordPaused
+                      ? Icon(Icons.pause_circle, color: Colors.blue)
+                      : Icon(Icons.play_arrow, color: Colors.blue)
+                  : Image.asset(
+                    'assets/icons/reading.png',
+                    width: 24,
+                    height: 24,
+                  ),
+        ),
+
+        isMyRecordPlaying
+            ? IconButton(
+              onPressed: () {
+                setState(() {
+                  isMyRecordPlaying = false;
+                });
+              },
+              padding: EdgeInsets.zero,
+              icon: Icon(isMyRecordPlaying ? Icons.stop : Icons.pause),
+              color: Colors.blue,
+            )
+            : SizedBox.shrink(),
+      ],
+    );
+  }
+
+  Widget recordMe() {
+    return Row(
+      children: [
+        IconButton(
+          onPressed: () async {
+            setState(() {
+              isMyRecordPaused = true;
+              isRecordPaused = true;
+            });
+            if (isRecordingPasued && isRecording) {
+              setState(() {
+                isRecordingPasued = false;
+                isRecording = true;
+              });
+            } else if (!isRecordingPasued && isRecording) {
+              await _recordPause();
+              setState(() {
+                isRecordingPasued = true;
+                isRecording = true;
+              });
+            } else {
+              await _recordStart();
+            }
+          },
+          padding: EdgeInsets.zero,
+          icon:
+              isRecording
+                  ? !isRecordingPasued
+                      ? Image.asset('assets/icons/podcast.gif')
+                      : Icon(Icons.play_arrow, color: Colors.red)
+                  : Icon(Icons.mic, color: Colors.red),
+        ),
+
+        isRecording
+            ? IconButton(
+              onPressed: () async {
+                saveConfirmation(context);
+                // await _recordStop();
+              },
+              padding: EdgeInsets.zero,
+              icon: Icon(
+                isRecording ? Icons.stop : Icons.pause,
+                color: Colors.red,
+              ),
+            )
+            : SizedBox.shrink(),
+      ],
     );
   }
 }

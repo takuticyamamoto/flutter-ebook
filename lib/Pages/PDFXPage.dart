@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_ebook/Pages/Audio_Record.dart';
 import 'package:flutter_ebook/data/global.dart';
 import 'dart:async';
 import 'dart:io';
 import 'package:animated_icon/animated_icon.dart';
 import 'package:flutter/foundation.dart';
+import 'package:just_audio/just_audio.dart';
 import 'dart:math';
 // import 'package:flutter_sound/flutter_sound.dart';
 import 'package:path_provider/path_provider.dart';
@@ -51,13 +53,14 @@ class _PdfxpageState extends State<PDFXPage> {
   bool isMyRecordPaused = false;
   bool isRecorderInitialized = false;
   // bool get _isRecording => audioRecorder!.isRecording;
-  String pathToSaveAudio = '';
+  String recordingPath = '';
 
   // final player = CacheAudioPlayerPlus();
   // FlutterSoundRecorder? audioRecorder;
   // late final RecorderControll  er recorderController;
 
-  // final AudioRecorder audioRecorder = AudioRecorder();
+  final AudioRecorder audioRecorder = AudioRecorder();
+  final AudioPlayer audioPlayer = AudioPlayer();
 
   //=================================================================              initiate              ============================================================
 
@@ -124,19 +127,94 @@ class _PdfxpageState extends State<PDFXPage> {
     }
   }
 
-  //=================================================================             audio             ============================================================
+  //=================================================================             record             ============================================================
 
-  Future _record() async {
-    if (!isRecorderInitialized) return;
-    // await audioRecorder!.startRecorder(toFile: pathToSaveAudio);
+  _recordStart() async {
+    if (await audioRecorder.hasPermission()) {
+      final Directory appDir = await getApplicationDocumentsDirectory();
+      final String filePath = path.join(appDir.path, 'recording.wav');
+      await audioRecorder.start(const RecordConfig(), path: filePath);
+      setState(() {
+        isRecording = true;
+        isRecordingPasued = false;
+      });
+    }
   }
 
-  Future _stop() async {
-    if (!isRecorderInitialized) return;
-    // await audioRecorder!.stopRecorder();
+  _recordStop() async {
+    String? filePath = await audioRecorder.stop();
+    if (filePath != null) {
+      setState(() {
+        isRecording = false;
+        recordingPath = filePath;
+        print(recordingPath);
+      });
+    }
   }
 
-  Future _pause() async {
+  _recordPause() async {
+    if (!isRecorderInitialized) return;
+    // await audioRecorder!.pauseRecorder();
+  }
+
+  //=================================================================             my audio             ============================================================
+
+  _myAudioStart() async {
+    print('play is called ');
+    await audioPlayer.setFilePath(recordingPath);
+    audioPlayer.play();
+    setState(() {
+      isMyRecordPlaying = true;
+      isMyRecordPaused = false;
+    });
+  }
+
+  Future _myAudioStop() async {
+    if (!isRecorderInitialized) return;
+    String? filePath = await audioRecorder.stop();
+    if (filePath != null) {
+      setState(() {
+        isRecording = false;
+        recordingPath = filePath;
+      });
+    }
+  }
+
+  Future _myAudioPause() async {
+    if (!isRecorderInitialized) return;
+    audioPlayer.pause();
+    setState(() {
+      isMyRecordPaused = true;
+      isMyRecordPlaying = true;
+    });
+  }
+
+  //=================================================================             my audio             ============================================================
+
+  Future _bookAudioStart() async {
+    if (await audioRecorder.hasPermission()) {
+      final Directory appDir = await getApplicationDocumentsDirectory();
+      final String filePath = path.join(appDir.path, 'recording.wav');
+      await audioRecorder.start(const RecordConfig(), path: filePath);
+      setState(() {
+        isRecording = true;
+        isRecordingPasued = false;
+      });
+    }
+  }
+
+  Future _bookAudioStop() async {
+    if (!isRecorderInitialized) return;
+    String? filePath = await audioRecorder.stop();
+    if (filePath != null) {
+      setState(() {
+        isRecording = false;
+        recordingPath = filePath;
+      });
+    }
+  }
+
+  Future _bookAudioPause() async {
     if (!isRecorderInitialized) return;
     // await audioRecorder!.pauseRecorder();
   }
@@ -186,91 +264,66 @@ class _PdfxpageState extends State<PDFXPage> {
                     ? const Center(child: CircularProgressIndicator())
                     : pdfView(),
           ),
-          SizedBox(
-            height: 30,
+          Expanded(
+            child: SizedBox(
+              height: 30,
 
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              mainAxisSize: MainAxisSize.max,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                SizedBox(width: MediaQuery.of(context).size.width * 0.1),
-                SizedBox(
-                  width: MediaQuery.of(context).size.width * 0.3,
-                  child: playRecord(),
-                ),
-                SizedBox(
-                  width: MediaQuery.of(context).size.width * 0.3,
-                  child: myRecode(),
-                ),
-                SizedBox(
-                  width: MediaQuery.of(context).size.width * 0.3,
-                  child: recordMe(),
-                ),
-
-                // AudioWaveforms(
-                // recorderController: recorderController,
-                //   size: Size(50, 50),
-                //   waveStyle: WaveStyle(
-                //     backgroundColor: Colors.white,
-                //     showDurationLabel: true,
-                //     spacing: 8.0,
-                //     showBottom: false,
-                //     extendWaveform: true,
-                //     showMiddleLine: false,
-                //   ),
-                // ),
-              ],
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                mainAxisSize: MainAxisSize.max,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Expanded(
+                    child: SizedBox(
+                      width: MediaQuery.of(context).size.width * 0.1,
+                    ),
+                  ),
+                  Expanded(
+                    child: SizedBox(
+                      width: MediaQuery.of(context).size.width * 0.3,
+                      child: playRecord(),
+                    ),
+                  ),
+                  Expanded(
+                    child: SizedBox(
+                      width: MediaQuery.of(context).size.width * 0.3,
+                      child: myRecode(),
+                    ),
+                  ),
+                  Expanded(
+                    child: SizedBox(
+                      width: MediaQuery.of(context).size.width * 0.3,
+                      child: recordMe(),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
-
-          // SizedBox(
-          //   width: MediaQuery.of(context).size.width,
-          //   height: 30,
-          //   child:
-          // ),
         ],
       ),
     );
   }
 
   Widget pdfView() {
-    return Expanded(
-      // child: PDF(
-      //   swipeHorizontal: true,
-      //   autoSpacing: false,
-
-      //   onPageChanged: (int? page, int? total) {
-      //     setState(() {
-      //       if (page != null) currentPage = page + 1;
-      //       totalPage = total ?? 1;
-      //     });
-      //   },
-      //   onViewCreated: (PDFViewController controller) {
-      //     setState(() {
-      //       pdfViewController = controller;
-      //     });
-      //   },
-      // ).cachedFromUrl(
-      //   widget.pdfURL,
-      //   placeholder: (double progress) => Center(child: Text('$progress %')),
-      //   errorWidget: (dynamic error) => Center(child: Text(error.toString())),
+    return
+    //  Expanded(
+    //   child:
+    PdfViewPinch(
+      scrollDirection: Axis.horizontal,
+      controller: pdfControllerPinch,
+      onDocumentLoaded: (doc) {
+        setState(() {
+          totalPage = doc.pagesCount;
+        });
+      },
+      onPageChanged: (page) {
+        setState(() {
+          currentPage = page;
+          globalData.currentPage = page;
+        });
+      },
       // ),
-      child: PdfViewPinch(
-        scrollDirection: Axis.horizontal,
-        controller: pdfControllerPinch,
-        onDocumentLoaded: (doc) {
-          setState(() {
-            totalPage = doc.pagesCount;
-          });
-        },
-        onPageChanged: (page) {
-          setState(() {
-            currentPage = page;
-            globalData.currentPage = page;
-          });
-        },
-      ),
     );
   }
 
@@ -313,7 +366,7 @@ class _PdfxpageState extends State<PDFXPage> {
     return Row(
       children: [
         IconButton(
-          onPressed: () {
+          onPressed: () async {
             setState(() {
               isMyRecordPaused = true;
               isRecordingPasued = true;
@@ -365,7 +418,7 @@ class _PdfxpageState extends State<PDFXPage> {
     return Row(
       children: [
         IconButton(
-          onPressed: () {
+          onPressed: () async {
             setState(() {
               isRecordPaused = true;
               isRecordingPasued = true;
@@ -376,15 +429,17 @@ class _PdfxpageState extends State<PDFXPage> {
                 isMyRecordPlaying = true;
               });
             } else if (!isMyRecordPaused && isMyRecordPlaying) {
-              setState(() {
-                isMyRecordPaused = true;
-                isMyRecordPlaying = true;
-              });
+              await _myAudioPause();
+              // setState(() {
+              //   isMyRecordPaused = true;
+              //   isMyRecordPlaying = true;
+              // });
             } else {
-              setState(() {
-                isMyRecordPlaying = true;
-                isMyRecordPaused = false;
-              });
+              await _myAudioStart();
+              // setState(() {
+              //   isMyRecordPlaying = true;
+              //   isMyRecordPaused = false;
+              // });
             }
           },
           padding: EdgeInsets.zero,
@@ -392,11 +447,7 @@ class _PdfxpageState extends State<PDFXPage> {
               isMyRecordPlaying
                   ? !isMyRecordPaused
                       ? Icon(Icons.pause_circle, color: Colors.blue)
-                      : Image.asset(
-                        'assets/icons/reading.png',
-                        width: 24,
-                        height: 24,
-                      )
+                      : Icon(Icons.play_arrow, color: Colors.blue)
                   : Image.asset(
                     'assets/icons/reading.png',
                     width: 24,
@@ -424,7 +475,7 @@ class _PdfxpageState extends State<PDFXPage> {
     return Row(
       children: [
         IconButton(
-          onPressed: () {
+          onPressed: () async {
             setState(() {
               isMyRecordPaused = true;
               isRecordPaused = true;
@@ -440,27 +491,22 @@ class _PdfxpageState extends State<PDFXPage> {
                 isRecording = true;
               });
             } else {
-              setState(() {
-                isRecording = true;
-                isRecordingPasued = false;
-              });
+              await _recordStart();
             }
           },
           padding: EdgeInsets.zero,
           icon:
               isRecording
                   ? !isRecordingPasued
-                      ? AnimationIcons_activity()
-                      : Icon(Icons.mic, color: Colors.red)
+                      ? Image.asset('assets/icons/podcast.gif')
+                      : Icon(Icons.play_arrow, color: Colors.red)
                   : Icon(Icons.mic, color: Colors.red),
         ),
 
         isRecording
             ? IconButton(
-              onPressed: () {
-                setState(() {
-                  isRecording = false;
-                });
+              onPressed: () async {
+                await _recordStop();
               },
               padding: EdgeInsets.zero,
               icon: Icon(
@@ -472,8 +518,4 @@ class _PdfxpageState extends State<PDFXPage> {
       ],
     );
   }
-}
-
-extension on Widget Function() {
-  get activity => null;
 }

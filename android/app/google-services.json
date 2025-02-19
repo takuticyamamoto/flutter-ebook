@@ -44,42 +44,6 @@
     },
     {
       "client_info": {
-        "mobilesdk_app_id": "1:700244737798:android:9b1c83701b8916e58e6887",
-        "android_client_info": {
-          "package_name": "com.ebook.app"
-        }
-      },
-      "oauth_client": [
-        {
-          "client_id": "700244737798-nia96m1oba31ku4pq3g73lqndha9ls58.apps.googleusercontent.com",
-          "client_type": 3
-        }
-      ],
-      "api_key": [
-        {
-          "current_key": "AIzaSyCUCcboEvPD3xbSiLv-vOKFmXjZITeIhbs"
-        }
-      ],
-      "services": {
-        "appinvite_service": {
-          "other_platform_oauth_client": [
-            {
-              "client_id": "700244737798-nia96m1oba31ku4pq3g73lqndha9ls58.apps.googleusercontent.com",
-              "client_type": 3
-            },
-            {
-              "client_id": "700244737798-9ms3dm0flsqggu181km7gc240esqvvme.apps.googleusercontent.com",
-              "client_type": 2,
-              "ios_info": {
-                "bundle_id": "com.bluepine.camera"
-              }
-            }
-          ]
-        }
-      }
-    },
-    {
-      "client_info": {
         "mobilesdk_app_id": "1:700244737798:android:7daf5978000178ad8e6887",
         "android_client_info": {
           "package_name": "com.example.flutter_ebook"

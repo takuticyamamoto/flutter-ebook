@@ -68,4 +68,5 @@ class DefaultFirebaseOptions {
     iosClientId: '700244737798-tbq98j47qgftoc6bku0rvm3ae33djvpo.apps.googleusercontent.com',
     iosBundleId: 'com.example.flutterEbook',
   );
+
 }
