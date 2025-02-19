@@ -1,9 +1,9 @@
-import 'package:ebook_app/Services/reset_password.dart';
+import 'package:flutter_ebook/Services/reset_password.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:ebook_app/Pages/HomePage.dart';
+import 'package:flutter_ebook/Pages/HomePage.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import 'package:ebook_app/Services/otp_page.dart';
+import 'package:flutter_ebook/Services/otp_page.dart';
 import 'CreateProfilePage.dart';
 import 'SignupPage.dart';
 // import 'package:flutter_localization/flutter_localization.dart';
@@ -22,7 +22,7 @@ String selectedLanguage = 'ja';
 class _LoginPage extends State<LoginPage> {
   // final FlutterLocalization _localization = FlutterLocalization.instance;
 
-// =========================================Declaring are the required variables=============================================
+  // =========================================Declaring are the required variables=============================================
   final _formKey = GlobalKey<FormState>();
 
   var id = TextEditingController();
@@ -39,7 +39,7 @@ class _LoginPage extends State<LoginPage> {
   String? _verificationCode;
   String? passError;
 
-// =========================================================  Password Visibility function ===========================================
+  // =========================================================  Password Visibility function ===========================================
 
   void passwordVisibility() {
     if (notVisiblePassword) {
@@ -49,54 +49,64 @@ class _LoginPage extends State<LoginPage> {
     }
   }
 
-// =========================================================  Login Function ======================================================
+  // =========================================================  Login Function ======================================================
   login() async {
     try {
-      if (!RegExp(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$')
-          .hasMatch(id.text.toString())) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text(
+      if (!RegExp(
+        r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$',
+      ).hasMatch(id.text.toString())) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
               textAlign: TextAlign.center,
-              'Please enter a valid email address.'.tr()),
-          backgroundColor: const Color.fromARGB(255, 109, 209, 214),
-        ));
+              'Please enter a valid email address.'.tr(),
+            ),
+            backgroundColor: const Color.fromARGB(255, 109, 209, 214),
+          ),
+        );
         return;
       }
 
       await FirebaseAuth.instance.signInWithEmailAndPassword(
-          email: id.text.toString(), password: password.text.toString());
+        email: id.text.toString(),
+        password: password.text.toString(),
+      );
       isEmailVerified();
     } on FirebaseAuthException catch (e) {
       if (e.code == 'invalid-email') {
         const emailError = 'Enter valid email ID';
-        ScaffoldMessenger.of(context)
-            .showSnackBar(const SnackBar(content: Text(emailError)));
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text(emailError)));
       }
       if (e.code == 'wrong-password') {
         const passError = 'Enter correct password';
-        ScaffoldMessenger.of(context)
-            .showSnackBar(const SnackBar(content: Text(passError)));
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text(passError)));
       }
       if (e.code == 'user-not-found') {
         ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text("You are not registed. Sign Up now")));
+          const SnackBar(content: Text("You are not registed. Sign Up now")),
+        );
       }
       if (e.code == 'invalid-credential') {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(const SnackBar(content: Text("正しいパスワードを入力してください。")));
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text("正しいパスワードを入力してください。")));
       }
     }
     setState(() {});
   }
-// =========================================================  Login Using phone number ==============================================
+  // =========================================================  Login Using phone number ==============================================
 
   signinphone() async {
     await FirebaseAuth.instance.verifyPhoneNumber(
       phoneNumber: phone.text.toString(),
       verificationCompleted: (PhoneAuthCredential credential) async {
-        await FirebaseAuth.instance
-            .signInWithCredential(credential)
-            .then((value) async {
+        await FirebaseAuth.instance.signInWithCredential(credential).then((
+          value,
+        ) async {
           if (value.user != null) {
             firstLogin();
           }
@@ -105,16 +115,25 @@ class _LoginPage extends State<LoginPage> {
       verificationFailed: (FirebaseAuthException e) {
         if (e.code == 'invalid-phone-number') {
           const SnackBar(
-              content: Text('The provided phone number is not valid.'));
+            content: Text('The provided phone number is not valid.'),
+          );
         }
       },
       codeSent: (String? verificationId, int? resendToken) async {
         setState(() {
           otpVisibilty = true;
           _verificationCode = verificationId;
-          Navigator.push(context, MaterialPageRoute(builder: (context) {
-            return OTPPage(id: _verificationCode, phone: phone.text.toString());
-          }));
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) {
+                return OTPPage(
+                  id: _verificationCode,
+                  phone: phone.text.toString(),
+                );
+              },
+            ),
+          );
         });
       },
       codeAutoRetrievalTimeout: (String verificationId) {
@@ -125,7 +144,7 @@ class _LoginPage extends State<LoginPage> {
     );
   }
 
-// =========================================================  Login Using Google function ==============================================
+  // =========================================================  Login Using Google function ==============================================
 
   signInWithGoogle() async {
     final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
@@ -140,24 +159,27 @@ class _LoginPage extends State<LoginPage> {
 
     await FirebaseAuth.instance
         .signInWithCredential(credential)
-        .then((value) => {
-              if (value.user != null) {firstLogin()}
-            });
+        .then(
+          (value) => {
+            if (value.user != null) {firstLogin()},
+          },
+        );
   }
 
-// =========================================================  Checking if email is verified =======================================
+  // =========================================================  Checking if email is verified =======================================
 
   void isEmailVerified() {
     User user = FirebaseAuth.instance.currentUser!;
     if (user.emailVerified) {
       firstLogin();
     } else {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text('Email is not verified.')));
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Email is not verified.')));
     }
   }
 
-// =========================================================  Checking First time login ===============================================
+  // =========================================================  Checking First time login ===============================================
 
   void firstLogin() async {
     // Get the current user
@@ -169,315 +191,343 @@ class _LoginPage extends State<LoginPage> {
       DateTime? lastLogin = user.metadata.lastSignInTime;
 
       if (creation == lastLogin) {
-        Navigator.pushReplacement(context,
-            MaterialPageRoute(builder: (context) {
-          return CreateProfilePage();
-        }));
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) {
+              return CreateProfilePage();
+            },
+          ),
+        );
         // }
       } else {
         if (mounted) {
-          Navigator.pushReplacement(context,
-              MaterialPageRoute(builder: (context) {
-            return MyHomePage(title: "Hello");
-          }));
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (context) {
+                return MyHomePage(title: "Hello");
+              },
+            ),
+          );
         }
       }
     } else {}
   }
 
-//==========================================================  locailization  =====================================================
+  //==========================================================  locailization  =====================================================
   @override
   setLanguage(String? value) async {
-setState(() {
-  selectedLanguage = value!;
-});
- Locale newLocale;
-  if (value == 'en') {
-    newLocale = const Locale('en', 'US');
-  } else if (value == 'ja') {
-    newLocale = const Locale('ja', 'JP');
-  } else if (value == 'ch') {
-    newLocale = const Locale('zh', 'CN');
-  } else {
-    return;
+    setState(() {
+      selectedLanguage = value!;
+    });
+    Locale newLocale;
+    if (value == 'en') {
+      newLocale = const Locale('en', 'US');
+    } else if (value == 'ja') {
+      newLocale = const Locale('ja', 'JP');
+    } else if (value == 'ch') {
+      newLocale = const Locale('zh', 'CN');
+    } else {
+      return;
+    }
+
+    await context.setLocale(newLocale);
+    // setState(() {});
   }
 
-  await context.setLocale(newLocale);
-  // setState(() {});
-
-  }
-
-// ================================================Building The Screen ===================================================
+  // ================================================Building The Screen ===================================================
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        backgroundColor: Colors.white,
-        resizeToAvoidBottomInset: false,
-        body: Container(
-          height: MediaQuery.of(context).size.height,
-          child: SingleChildScrollView(
-            physics: const BouncingScrollPhysics(),
-            child: Column(
-              children: [
-                const SizedBox(height: 40),
-                Padding(
-                  padding: const EdgeInsets.only(top: 8.0),
-                  child: Image.asset('assets/images/login.png'),
+      backgroundColor: Colors.white,
+      resizeToAvoidBottomInset: false,
+      body: Container(
+        height: MediaQuery.of(context).size.height,
+        child: SingleChildScrollView(
+          physics: const BouncingScrollPhysics(),
+          child: Column(
+            children: [
+              const SizedBox(height: 40),
+              Padding(
+                padding: const EdgeInsets.only(top: 8.0),
+                child: Image.asset('assets/images/login.png'),
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 30.0,
+                  vertical: 10,
                 ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 30.0, vertical: 10),
-                  child: Column(
-                    children: [
-// =========================================================  Login Text ==============================================
-
-                      Align(
-                        alignment: Alignment.topLeft,
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              'login'.tr(),
-                              style: TextStyle(
-                                  fontSize: 25,
-                                  fontWeight: FontWeight.w700,
-                                  fontFamily: 'Poppins'),
+                child: Column(
+                  children: [
+                    // =========================================================  Login Text ==============================================
+                    Align(
+                      alignment: Alignment.topLeft,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            'login'.tr(),
+                            style: TextStyle(
+                              fontSize: 25,
+                              fontWeight: FontWeight.w700,
+                              fontFamily: 'Poppins',
                             ),
-                            DropdownButtonHideUnderline(
-                              child: DropdownButton<String>(
-                                value: selectedLanguage,
-                                onChanged: (value) {
-                                  if (value != null) {
-                                    setLanguage(value);
-                                  }
-                                },
-                                items: [
-                                  DropdownMenuItem<String>(
-                                    value: "ch",
-                                    child: Text("中文"),
-                                  ),
-                                  DropdownMenuItem<String>(
-                                    value: "en",
-                                    child: Text("English"),
-                                  ),
-                                  DropdownMenuItem<String>(
-                                    value: "ja",
-                                    child: Text("日本語"),
-                                  ),
-                                ],
+                          ),
+                          DropdownButtonHideUnderline(
+                            child: DropdownButton<String>(
+                              value: selectedLanguage,
+                              onChanged: (value) {
+                                if (value != null) {
+                                  setLanguage(value);
+                                }
+                              },
+                              items: [
+                                DropdownMenuItem<String>(
+                                  value: "ch",
+                                  child: Text("中文"),
+                                ),
+                                DropdownMenuItem<String>(
+                                  value: "en",
+                                  child: Text("English"),
+                                ),
+                                DropdownMenuItem<String>(
+                                  value: "ja",
+                                  child: Text("日本語"),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    // Sized box
+                    const SizedBox(height: 10),
+
+                    Visibility(
+                      visible: emailFormVisibility,
+                      child: Form(
+                        key: _formKey,
+                        child: Column(
+                          children: [
+                            // =========================================================  Email ID ==============================================
+                            TextFormField(
+                              decoration: InputDecoration(
+                                prefixIcon: Icon(
+                                  size: 20,
+                                  Icons.alternate_email_outlined,
+                                  color: Colors.grey,
+                                ),
+                                labelText: 'email'.tr(),
+                                suffixIcon: IconButton(
+                                  onPressed: () {
+                                    setState(() {
+                                      emailFormVisibility =
+                                          !emailFormVisibility;
+                                    });
+                                  },
+                                  icon: const Icon(Icons.phone_android_rounded),
+                                ),
                               ),
+                              controller: id,
+                            ),
+
+                            // =========================================================  Password ==============================================
+                            TextFormField(
+                              obscureText: notvisible,
+                              decoration: InputDecoration(
+                                prefixIcon: const Icon(
+                                  size: 20,
+                                  Icons.lock_outline_rounded,
+                                  color: Colors.grey,
+                                ),
+                                labelText: 'password'.tr(),
+                                suffixIcon: IconButton(
+                                  onPressed: () {
+                                    setState(() {
+                                      notvisible = !notvisible;
+                                      notVisiblePassword = !notVisiblePassword;
+                                      passwordVisibility();
+                                    });
+                                  },
+                                  icon: passwordIcon,
+                                ),
+                              ),
+                              controller: password,
                             ),
                           ],
                         ),
                       ),
+                    ),
 
-                      // Sized box
-                      const SizedBox(
-                        height: 10,
-                      ),
-
-                      Visibility(
-                        visible: emailFormVisibility,
-                        child: Form(
-                            key: _formKey,
-                            child: Column(
-                              children: [
-// =========================================================  Email ID ==============================================
-                                TextFormField(
-                                    decoration: InputDecoration(
-                                        prefixIcon: Icon(
-                                            size: 20,
-                                            Icons.alternate_email_outlined,
-                                            color: Colors.grey),
-                                        labelText: 'email'.tr(),
-                                        suffixIcon: IconButton(
-                                            onPressed: () {
-                                              setState(() {
-                                                emailFormVisibility =
-                                                    !emailFormVisibility;
-                                              });
-                                            },
-                                            icon: const Icon(
-                                                Icons.phone_android_rounded))),
-                                    controller: id),
-
-// =========================================================  Password ==============================================
-
-                                TextFormField(
-                                    obscureText: notvisible,
-                                    decoration: InputDecoration(
-                                        prefixIcon: const Icon(
-                                          size: 20,
-                                          Icons.lock_outline_rounded,
-                                          color: Colors.grey,
-                                        ),
-                                        labelText: 'password'.tr(),
-                                        suffixIcon: IconButton(
-                                            onPressed: () {
-                                              setState(() {
-                                                notvisible = !notvisible;
-                                                notVisiblePassword =
-                                                    !notVisiblePassword;
-                                                passwordVisibility();
-                                              });
-                                            },
-                                            icon: passwordIcon)),
-                                    controller: password)
-                              ],
-                            )),
-                      ),
-// =========================================================  Phone Number ==============================================
-
-                      Visibility(
-                          visible: !emailFormVisibility,
-                          child: Form(
-                            child: TextFormField(
-                                decoration: InputDecoration(
-                                    labelText: 'phone number'.tr(),
-                                    prefixIcon: const Icon(
-                                      Icons.phone_android_rounded,
-                                      color: Colors.grey,
-                                    ),
-                                    suffixIcon: IconButton(
-                                        onPressed: () {
-                                          setState(() {
-                                            emailFormVisibility =
-                                                !emailFormVisibility;
-                                          });
-                                        },
-                                        icon: const Icon(
-                                            Icons.alternate_email_rounded))),
-                                controller: phone),
-                          )),
-
-                      const SizedBox(height: 13),
-
-// =========================================================  Forgot Password ==============================================
-
-                      const SizedBox(height: 15),
-                      Padding(
-                        padding: EdgeInsets.symmetric(vertical: 0.0),
-                        child: Align(
-                          alignment: Alignment.bottomRight,
-                          child: GestureDetector(
-                            child: Text(
-                              'forgot password'.tr(),
-                              style: TextStyle(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w800,
-                                  color: Colors.indigo),
+                    // =========================================================  Phone Number ==============================================
+                    Visibility(
+                      visible: !emailFormVisibility,
+                      child: Form(
+                        child: TextFormField(
+                          decoration: InputDecoration(
+                            labelText: 'phone number'.tr(),
+                            prefixIcon: const Icon(
+                              Icons.phone_android_rounded,
+                              color: Colors.grey,
                             ),
-                            onTap: () {
-                              Navigator.push(context,
-                                  MaterialPageRoute(builder: (context) {
-                                return RESETpasswordPage();
-                              }));
-                            },
+                            suffixIcon: IconButton(
+                              onPressed: () {
+                                setState(() {
+                                  emailFormVisibility = !emailFormVisibility;
+                                });
+                              },
+                              icon: const Icon(Icons.alternate_email_rounded),
+                            ),
+                          ),
+                          controller: phone,
+                        ),
+                      ),
+                    ),
+
+                    const SizedBox(height: 13),
+
+                    // =========================================================  Forgot Password ==============================================
+                    const SizedBox(height: 15),
+                    Padding(
+                      padding: EdgeInsets.symmetric(vertical: 0.0),
+                      child: Align(
+                        alignment: Alignment.bottomRight,
+                        child: GestureDetector(
+                          child: Text(
+                            'forgot password'.tr(),
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w800,
+                              color: Colors.indigo,
+                            ),
+                          ),
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) {
+                                  return RESETpasswordPage();
+                                },
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                    ),
+
+                    // =========================================================  Login Button ==============================================
+                    const SizedBox(height: 15),
+
+                    Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 6.0,
+                        vertical: 10,
+                      ),
+                      child: ElevatedButton(
+                        onPressed: () {
+                          if (emailFormVisibility) {
+                            login();
+                            // firstLogin();
+                          } else {
+                            signinphone();
+                          }
+                        },
+                        style: ElevatedButton.styleFrom(
+                          minimumSize: const Size.fromHeight(45),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                        ),
+                        child: Center(
+                          child: Text(
+                            'login'.tr(),
+                            style: TextStyle(fontSize: 15),
                           ),
                         ),
                       ),
+                    ),
 
-// =========================================================  Login Button ==============================================
+                    // =========================================================  Login with google ==============================================
 
-                      const SizedBox(height: 15),
-
-                      Padding(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 6.0, vertical: 10),
-                        child: ElevatedButton(
-                          onPressed: () {
-                            if (emailFormVisibility) {
-                              login();
-                              // firstLogin();
-                            } else {
-                              signinphone();
-                            }
-                          },
-                          style: ElevatedButton.styleFrom(
-                              minimumSize: const Size.fromHeight(45),
-                              shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(10))),
-                          child: Center(
-                              child: Text(
-                            'login'.tr(),
-                            style: TextStyle(fontSize: 15),
-                          )),
-                        ),
-                      ),
-
-// =========================================================  Login with google ==============================================
-
-                      // Padding(
-                      //     padding: const EdgeInsets.symmetric(
-                      //         horizontal: 10.0, vertical: 10),
-                      //     child: ElevatedButton.icon(
-                      //       onPressed: () {
-                      //         signInWithGoogle();
-                      //         firstLogin();
-                      //       },
-                      //       icon: Image.asset(
-                      //         'assets/images/google_logo.png',
-                      //         width: 20,
-                      //         height: 20,
-                      //       ),
-                      //       style: ElevatedButton.styleFrom(
-                      //           minimumSize: const Size.fromHeight(45),
-                      //           backgroundColor: Colors.white70,
-                      //           shape: RoundedRectangleBorder(
-                      //               borderRadius: BorderRadius.circular(10))),
-                      //       label: Center(
-                      //           child: Text(
-                      //         selectedLanguage == 'ch'
-                      //             ? '使用 Google 登录'
-                      //             : selectedLanguage == 'en'
-                      //                 ? 'Login with Google'
-                      //                 : 'Googleでログイン',
-                      //         style: TextStyle(
-                      //             fontSize: 15,
-                      //             color: Colors.black,
-                      //             fontFamily: 'Poppins'),
-                      //       )),
-                      //     )),
-                      // Sized box
-                      const SizedBox(height: 25),
-                      // Register button
-                      Center(
-                          child: Row(
+                    // Padding(
+                    //     padding: const EdgeInsets.symmetric(
+                    //         horizontal: 10.0, vertical: 10),
+                    //     child: ElevatedButton.icon(
+                    //       onPressed: () {
+                    //         signInWithGoogle();
+                    //         firstLogin();
+                    //       },
+                    //       icon: Image.asset(
+                    //         'assets/images/google_logo.png',
+                    //         width: 20,
+                    //         height: 20,
+                    //       ),
+                    //       style: ElevatedButton.styleFrom(
+                    //           minimumSize: const Size.fromHeight(45),
+                    //           backgroundColor: Colors.white70,
+                    //           shape: RoundedRectangleBorder(
+                    //               borderRadius: BorderRadius.circular(10))),
+                    //       label: Center(
+                    //           child: Text(
+                    //         selectedLanguage == 'ch'
+                    //             ? '使用 Google 登录'
+                    //             : selectedLanguage == 'en'
+                    //                 ? 'Login with Google'
+                    //                 : 'Googleでログイン',
+                    //         style: TextStyle(
+                    //             fontSize: 15,
+                    //             color: Colors.black,
+                    //             fontFamily: 'Poppins'),
+                    //       )),
+                    //     )),
+                    // Sized box
+                    const SizedBox(height: 25),
+                    // Register button
+                    Center(
+                      child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Text(
                             'are you new to this app'.tr(),
                             style: TextStyle(
-                                fontSize: 15,
-                                fontWeight: FontWeight.w500,
-                                color: Colors.grey),
+                              fontSize: 15,
+                              fontWeight: FontWeight.w500,
+                              color: Colors.grey,
+                            ),
                           ),
-                          const SizedBox(
-                            width: 10,
-                          ),
+                          const SizedBox(width: 10),
                           GestureDetector(
                             child: Text(
                               'register'.tr(),
                               style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w600,
-                                  color: Colors.indigo),
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.indigo,
+                              ),
                             ),
                             onTap: () {
-                              Navigator.pushReplacement(context,
-                                  MaterialPageRoute(builder: (context) {
-                                return SignUpPage();
-                              }));
+                              Navigator.pushReplacement(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) {
+                                    return SignUpPage();
+                                  },
+                                ),
+                              );
                             },
-                          )
+                          ),
                         ],
-                      ))
-                    ],
-                  ),
+                      ),
+                    ),
+                  ],
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
-        ));
+        ),
+      ),
+    );
   }
 }

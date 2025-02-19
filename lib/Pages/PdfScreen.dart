@@ -7,7 +7,6 @@ import 'package:flutter/services.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:flutter_pdfview/flutter_pdfview.dart';
 
-
 class PDFPreviewScreen extends StatefulWidget {
   @override
   _PDFPreviewScreenState createState() => _PDFPreviewScreenState();
@@ -22,36 +21,45 @@ class _PDFPreviewScreenState extends State<PDFPreviewScreen> {
   @override
   void initState() {
     super.initState();
-    fromAsset('assets/books/pdf.pdf', 'corrupted.pdf').then((f) {
+    fromAsset(
+      'assets/books/Shigoto_no_nihongo_IT_Gyoumuhen.pdf',
+      'pdf.pdf',
+    ).then((f) {
       setState(() {
         corruptedPathPDF = f.path;
       });
     });
-    fromAsset('assets/books/pdf.pdf', 'demo.pdf').then((f) {
+    fromAsset(
+      'assets/books/Shigoto_no_nihongo_IT_Gyoumuhen.pdf',
+      'pdf.pdf',
+    ).then((f) {
       setState(() {
         pathPDF = f.path;
       });
     });
-    fromAsset('assets/books/pdf.pdf', 'landscape.pdf').then((f) {
+    fromAsset(
+      'assets/books/Shigoto_no_nihongo_IT_Gyoumuhen.pdf',
+      'pdf.pdf',
+    ).then((f) {
       setState(() {
         landscapePathPdf = f.path;
       });
     });
 
-    createFileOfPdfUrl().then((f) {
+    createFileOfPdfUrl('').then((f) {
       setState(() {
         remotePDFpath = f.path;
       });
     });
   }
 
-  Future<File> createFileOfPdfUrl() async {
+  Future<File> createFileOfPdfUrl(String pdfURL) async {
     Completer<File> completer = Completer();
     print("Start download file from internet!");
     try {
       // "https://berlin2017.droidcon.cod.newthinking.net/sites/global.droidcon.cod.newthinking.net/files/media/documents/Flutter%20-%2060FPS%20UI%20of%20the%20future%20%20-%20DroidconDE%2017.pdf";
       // final url = "https://pdfkit.org/docs/guide.pdf";
-      final url = "http://www.pdf995.com/samples/pdf.pdf";
+      final url = pdfURL;
       final filename = url.substring(url.lastIndexOf("/") + 1);
       var request = await HttpClient().getUrl(Uri.parse(url));
       var response = await request.close();
@@ -95,77 +103,82 @@ class _PDFPreviewScreenState extends State<PDFPreviewScreen> {
       debugShowCheckedModeBanner: false,
       home: Scaffold(
         appBar: AppBar(title: const Text('Plugin example app')),
-        body: Center(child: Builder(
-          builder: (BuildContext context) {
-            return Column(
-              children: <Widget>[
-                TextButton(
-                  child: Text("Open PDF"),
-                  onPressed: () {
-                    if (pathPDF.isNotEmpty) {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => PDFScreen(path: pathPDF),
-                        ),
-                      );
-                    }
-                  },
-                ),
-                TextButton(
-                  child: Text("Open Landscape PDF"),
-                  onPressed: () {
-                    if (landscapePathPdf.isNotEmpty) {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) =>
-                              PDFScreen(path: landscapePathPdf),
-                        ),
-                      );
-                    }
-                  },
-                ),
-                TextButton(
-                  child: Text("Remote PDF"),
-                  onPressed: () {
-                    if (remotePDFpath.isNotEmpty) {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => PDFScreen(path: remotePDFpath),
-                        ),
-                      );
-                    }
-                  },
-                ),
-                TextButton(
-                  child: Text("Open Corrupted PDF"),
-                  onPressed: () {
-                    if (pathPDF.isNotEmpty) {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) =>
-                              PDFScreen(path: corruptedPathPDF),
-                        ),
-                      );
-                    }
-                  },
-                )
-              ],
-            );
-          },
-        )),
+        body: Center(
+          child: Builder(
+            builder: (BuildContext context) {
+              return Column(
+                children: <Widget>[
+                  TextButton(
+                    child: Text("Open PDF"),
+                    onPressed: () {
+                      if (pathPDF.isNotEmpty) {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => PDFScreen(pdfURL: pathPDF),
+                          ),
+                        );
+                      }
+                    },
+                  ),
+                  TextButton(
+                    child: Text("Open Landscape PDF"),
+                    onPressed: () {
+                      if (landscapePathPdf.isNotEmpty) {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder:
+                                (context) =>
+                                    PDFScreen(pdfURL: landscapePathPdf),
+                          ),
+                        );
+                      }
+                    },
+                  ),
+                  TextButton(
+                    child: Text("Remote PDF"),
+                    onPressed: () {
+                      if (remotePDFpath.isNotEmpty) {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder:
+                                (context) => PDFScreen(pdfURL: remotePDFpath),
+                          ),
+                        );
+                      }
+                    },
+                  ),
+                  TextButton(
+                    child: Text("Open Corrupted PDF"),
+                    onPressed: () {
+                      if (pathPDF.isNotEmpty) {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder:
+                                (context) =>
+                                    PDFScreen(pdfURL: corruptedPathPDF),
+                          ),
+                        );
+                      }
+                    },
+                  ),
+                ],
+              );
+            },
+          ),
+        ),
       ),
     );
   }
 }
 
 class PDFScreen extends StatefulWidget {
-  final String? path;
+  final String pdfURL;
 
-  PDFScreen({Key? key, this.path}) : super(key: key);
+  PDFScreen({super.key, required this.pdfURL});
 
   _PDFScreenState createState() => _PDFScreenState();
 }
@@ -180,21 +193,19 @@ class _PDFScreenState extends State<PDFScreen> with WidgetsBindingObserver {
 
   @override
   Widget build(BuildContext context) {
+    print(widget.pdfURL);
     return Scaffold(
       appBar: AppBar(
         title: Text("Document"),
         actions: <Widget>[
-          IconButton(
-            icon: Icon(Icons.share),
-            onPressed: () {},
-          ),
+          IconButton(icon: Icon(Icons.share), onPressed: () {}),
         ],
       ),
       body: Stack(
         children: <Widget>[
           PDFView(
             // filePath: widget.path,
-            filePath: 'assets/books/pdf.pdf',
+            filePath: widget.pdfURL,
             enableSwipe: true,
             swipeHorizontal: true,
             autoSpacing: false,
@@ -238,13 +249,9 @@ class _PDFScreenState extends State<PDFScreen> with WidgetsBindingObserver {
           ),
           errorMessage.isEmpty
               ? !isReady
-                  ? Center(
-                      child: CircularProgressIndicator(),
-                    )
+                  ? Center(child: CircularProgressIndicator())
                   : Container()
-              : Center(
-                  child: Text(errorMessage),
-                )
+              : Center(child: Text(errorMessage)),
         ],
       ),
       floatingActionButton: FutureBuilder<PDFViewController>(

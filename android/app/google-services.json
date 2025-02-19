@@ -1,26 +1,116 @@
 {
   "project_info": {
-    "project_number": "159279733211",
-    "project_id": "ebook-app-32f0b",
-    "storage_bucket": "ebook-app-32f0b.firebasestorage.app"
+    "project_number": "700244737798",
+    "firebase_url": "https://unprocessedsns-default-rtdb.firebaseio.com",
+    "project_id": "unprocessedsns",
+    "storage_bucket": "unprocessedsns.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:159279733211:android:3cc89538d7bbcd11e12ffe",
+        "mobilesdk_app_id": "1:700244737798:android:3883706d40f03ba38e6887",
         "android_client_info": {
-          "package_name": "com.example.ebook_app"
+          "package_name": "com.bluepine.camera"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "700244737798-nia96m1oba31ku4pq3g73lqndha9ls58.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
-          "current_key": "AIzaSyAUVPDmplfC29mRkt_iinm7LqqSoSLE_jw"
+          "current_key": "AIzaSyCUCcboEvPD3xbSiLv-vOKFmXjZITeIhbs"
         }
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "700244737798-nia96m1oba31ku4pq3g73lqndha9ls58.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "700244737798-9ms3dm0flsqggu181km7gc240esqvvme.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.bluepine.camera"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:700244737798:android:9b1c83701b8916e58e6887",
+        "android_client_info": {
+          "package_name": "com.ebook.app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "700244737798-nia96m1oba31ku4pq3g73lqndha9ls58.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCUCcboEvPD3xbSiLv-vOKFmXjZITeIhbs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "700244737798-nia96m1oba31ku4pq3g73lqndha9ls58.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "700244737798-9ms3dm0flsqggu181km7gc240esqvvme.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.bluepine.camera"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:700244737798:android:7daf5978000178ad8e6887",
+        "android_client_info": {
+          "package_name": "com.example.flutter_ebook"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "700244737798-nia96m1oba31ku4pq3g73lqndha9ls58.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCUCcboEvPD3xbSiLv-vOKFmXjZITeIhbs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "700244737798-nia96m1oba31ku4pq3g73lqndha9ls58.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "700244737798-9ms3dm0flsqggu181km7gc240esqvvme.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.bluepine.camera"
+              }
+            }
+          ]
         }
       }
     }

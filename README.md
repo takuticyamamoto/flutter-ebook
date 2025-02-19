@@ -1,4 +1,4 @@
-# ebook_app
+# flutter_ebook
 
 A new Flutter project.
 
