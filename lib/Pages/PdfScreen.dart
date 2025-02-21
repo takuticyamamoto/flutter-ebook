@@ -1,27 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_ebook/Pages/Audio_Record.dart';
+import 'package:flutter_ebook/Pages/CreateProfilePage.dart';
+import 'package:flutter_ebook/Services/save_audio.dart';
 import 'package:flutter_ebook/data/global.dart';
 import 'dart:async';
 import 'dart:io';
-import 'package:animated_icon/animated_icon.dart';
 import 'package:flutter/foundation.dart';
 import 'package:just_audio/just_audio.dart';
-import 'dart:math';
-// import 'package:flutter_sound/flutter_sound.dart';
 import 'package:path_provider/path_provider.dart';
-import '../Widgets/animation.dart';
-import 'package:http/http.dart' as http;
 import 'package:path/path.dart' as path;
 import 'package:record/record.dart';
 import 'package:flutter_cached_pdfview/flutter_cached_pdfview.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:audio_waveforms/audio_waveforms.dart';
-// import 'package:cache_audio_player_plus/cache_audio_player_plus.dart';
 import 'package:pdfx/pdfx.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
-import 'package:animated_icon/animated_icon.dart';
-// import 'animate_icon_screen.dart';
 
 class Pdfscreen extends StatefulWidget {
   final String pdfURL;
@@ -54,7 +47,7 @@ class _PdfxpageState extends State<Pdfscreen> {
   bool isRecorderInitialized = false;
   // bool get _isRecording => audioRecorder!.isRecording;
   String recordingPath = '';
-
+  List<int> audioData = [];
   // final player = CacheAudioPlayerPlus();
   // FlutterSoundRecorder? audioRecorder;
   // late final RecorderControll  er recorderController;
@@ -129,156 +122,232 @@ class _PdfxpageState extends State<Pdfscreen> {
 
   //=================================================================             record             ============================================================
 
-  _recordStart() async {
-    if (await audioRecorder.hasPermission()) {
-      final Directory appDir = await getApplicationDocumentsDirectory();
-      final String filePath = path.join(appDir.path, 'recording.wav');
-      await audioRecorder.start(const RecordConfig(), path: filePath);
-      setState(() {
-        isRecording = true;
-        isRecordingPasued = false;
-      });
-    }
-  }
+  // _recordStart() async {
+  //   if (await audioRecorder.hasPermission()) {
+  //     final Directory appDir = await getApplicationDocumentsDirectory();
+  //     final String filePath = path.join(appDir.path, 'recording.wav');
+  //     await audioRecorder.start(const RecordConfig(), path: filePath);
+  //     setState(() {
+  //       isRecording = true;
+  //       isRecordingPasued = false;
+  //     });
+  //   }
+  // }
 
-  _recordStop() async {
-    String? filePath = await audioRecorder.stop();
-    if (filePath != null) {
-      setState(() {
-        isRecording = false;
-        recordingPath = filePath;
-        print(recordingPath);
-      });
-    }
-  }
+  // Future<List<int>> _recordStop() async {
+  //   String? filePath = await audioRecorder.stop();
+  //   if (filePath != null) {
+  //     File file = File(filePath);
 
-  _recordPause() async {
-    await audioPlayer.pause();
-    setState(() {
-      isRecordingPasued = true;
-      isRecording = true;
-    });
-    // await audioRecorder!.pauseRecorder();
-  }
+  //     setState(() {
+  //       isRecording = false;
+  //       recordingPath = filePath;
+  //     });
+  //     return await file.readAsBytes(); // Converts file into byte data
+  //   }
+  //   return [];
+  // }
 
-  //=================================================================             my audio             ============================================================
+  // _recordPause() async {
+  //   await audioPlayer.pause();
+  //   setState(() {
+  //     isRecordingPasued = true;
+  //     isRecording = true;
+  //   });
+  //   // await audioRecorder!.pauseRecorder();
+  // }
 
-  _myAudioStart() async {
-    print('play is called ');
-    await audioPlayer.setFilePath(recordingPath);
-    audioPlayer.play();
-    setState(() {
-      isMyRecordPlaying = true;
-      isMyRecordPaused = false;
-    });
-  }
+  // //=================================================================             my audio             ============================================================
 
-  Future _myAudioStop() async {
-    if (!isRecorderInitialized) return;
-    String? filePath = await audioRecorder.stop();
-    if (filePath != null) {
-      setState(() {
-        isRecording = false;
-        recordingPath = filePath;
-      });
-    }
-  }
+  // _myAudioStart() async {
+  //   print('play is called ');
+  //   await audioPlayer.setFilePath(recordingPath);
+  //   audioPlayer.play();
+  //   setState(() {
+  //     isMyRecordPlaying = true;
+  //     isMyRecordPaused = false;
+  //   });
+  // }
 
-  Future _myAudioPause() async {
-    if (!isRecorderInitialized) return;
-    audioPlayer.pause();
-    setState(() {
-      isMyRecordPaused = true;
-      isMyRecordPlaying = true;
-    });
-  }
+  // Future _myAudioStop() async {
+  //   if (!isRecorderInitialized) return;
+  //   String? filePath = await audioRecorder.stop();
+  //   if (filePath != null) {
+  //     setState(() {
+  //       isRecording = false;
+  //       recordingPath = filePath;
+  //     });
+  //   }
+  // }
 
-  //=================================================================             my audio             ============================================================
+  // Future _myAudioPause() async {
+  //   if (!isRecorderInitialized) return;
+  //   audioPlayer.pause();
+  //   setState(() {
+  //     isMyRecordPaused = true;
+  //     isMyRecordPlaying = true;
+  //   });
+  // }
 
-  Future _bookAudioStart() async {
-    if (await audioRecorder.hasPermission()) {
-      final Directory appDir = await getApplicationDocumentsDirectory();
-      final String filePath = path.join(appDir.path, 'recording.wav');
-      await audioRecorder.start(const RecordConfig(), path: filePath);
-      setState(() {
-        isRecording = true;
-        isRecordingPasued = false;
-      });
-    }
-  }
+  // //=================================================================             my audio             ============================================================
 
-  Future _bookAudioStop() async {
-    if (!isRecorderInitialized) return;
-    String? filePath = await audioRecorder.stop();
-    if (filePath != null) {
-      setState(() {
-        isRecording = false;
-        recordingPath = filePath;
-      });
-    }
-  }
+  // Future _bookAudioStart() async {
+  //   if (await audioRecorder.hasPermission()) {
+  //     final Directory appDir = await getApplicationDocumentsDirectory();
+  //     final String filePath = path.join(appDir.path, 'recording.wav');
+  //     await audioRecorder.start(const RecordConfig(), path: filePath);
+  //     setState(() {
+  //       isRecording = true;
+  //       isRecordingPasued = false;
+  //     });
+  //   }
+  // }
 
-  Future _bookAudioPause() async {
-    if (!isRecorderInitialized) return;
-    // await audioRecorder!.pauseRecorder();
-  }
+  // Future _bookAudioStop() async {
+  //   if (!isRecorderInitialized) return;
+  //   String? filePath = await audioRecorder.stop();
+  //   if (filePath != null) {
+  //     setState(() {
+  //       isRecording = false;
+  //       recordingPath = filePath;
+  //     });
+  //   }
+  // }
 
-  //=================================================================             dispose             ============================================================
+  // Future _bookAudioPause() async {
+  //   if (!isRecorderInitialized) return;
+  //   // await audioRecorder!.pauseRecorder();
+  // }
 
-  @override
-  void dispose() {
-    if (!isRecorderInitialized) return;
-    // Reset to default orientation when exiting
-    SystemChrome.setPreferredOrientations([
-      DeviceOrientation.portraitUp,
-      DeviceOrientation.portraitDown,
-    ]);
+  // //=================================================================             dispose             ============================================================
 
-    // audioRecorder!.closeRecorder();
-    isRecorderInitialized = false;
-    super.dispose();
-  }
+  // @override
+  // void dispose() {
+  //   if (!mounted) return;
+  //   // Reset to default orientation when exiting
+  //   SystemChrome.setPreferredOrientations([
+  //     DeviceOrientation.portraitUp,
+  //     DeviceOrientation.portraitDown,
+  //   ]);
+  //   audioRecorder.stop();
+  //   audioPlayer.stop();
+  //   isRecorderInitialized = false;
+  //   super.dispose();
+  // }
 
-  //=================================================================             save file confirmation             ============================================================
+  // //=================================================================             stop record confirmation             ============================================================
 
-  Future<void> saveConfirmation(BuildContext context) async {
-    await _recordPause();
-    bool? shouldSave = await showDialog<bool>(
-      context: context,
-      builder: (BuildContext dialogContext) {
-        return AlertDialog(
-          title: const Text('Save Confirmation'),
-          content: const Text('Are you sure you want to delete this file?'),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(dialogContext).pop(false); // User pressed Cancel
-              },
-              child: const Text('Cancel'),
-            ),
-            TextButton(
-              onPressed: () {
-                Navigator.of(dialogContext).pop(true); // User pressed Delete
-              },
-              child: const Text('save', style: TextStyle(color: Colors.red)),
-            ),
-          ],
-        );
-      },
-    );
+  // Future<void> showStopConfirmation(BuildContext context) async {
+  //   bool? shouldStop = await showDialog<bool>(
+  //     context: context,
+  //     builder: (BuildContext dialogContext) {
+  //       return AlertDialog(
+  //         title: const Text('Stop Recording?'),
+  //         content: const Text('Are you sure you want to stop the recording?'),
+  //         actions: [
+  //           TextButton(
+  //             onPressed: () => Navigator.of(dialogContext).pop(false),
+  //             child: const Text('Cancel'),
+  //           ),
+  //           TextButton(
+  //             onPressed: () => Navigator.of(dialogContext).pop(true),
+  //             child: const Text('Stop', style: TextStyle(color: Colors.red)),
+  //           ),
+  //         ],
+  //       );
+  //     },
+  //   );
 
-    if (shouldSave == true) {
-      try {
-        await _recordStop();
-        
-      } catch (e) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('Failed to save file: $e')));
-      }
-    }
-  }
+  //   if (shouldStop == true) {
+  //     await showSaveConfirmation(context);
 
+  //     List<int> _audioData = await _recordStop();
+  //     setState(() {
+  //       audioData = _audioData;
+  //     });
+  //     await saveAudioFile(_audioData, 'sample', "my_audio.mp3");
+  //   }
+  // }
+
+  // //=================================================================             save file confirmation             ============================================================
+
+  // Future<void> showSaveConfirmation(BuildContext context) async {
+  //   bool? shouldSave = await showDialog<bool>(
+  //     context: context,
+  //     builder: (BuildContext dialogContext) {
+  //       return AlertDialog(
+  //         title: const Text('Save Confirmation'),
+  //         content: const Text('Do you want to save this recording?'),
+  //         actions: [
+  //           TextButton(
+  //             onPressed: () => Navigator.of(dialogContext).pop(false),
+  //             child: const Text('Cancel'),
+  //           ),
+  //           TextButton(
+  //             onPressed: () => Navigator.of(dialogContext).pop(true),
+  //             child: const Text('Save', style: TextStyle(color: Colors.green)),
+  //           ),
+  //         ],
+  //       );
+  //     },
+  //   );
+
+  //   if (shouldSave == true) {
+  //     await showTitleDescriptionModal(context);
+  //   }
+  // }
+
+  // //=================================================================             title and description          ============================================================
+
+  // Future<void> showTitleDescriptionModal(BuildContext context) async {
+  //   TextEditingController titleController = TextEditingController();
+  //   TextEditingController descController = TextEditingController();
+
+  //   bool? saved = await showDialog<bool>(
+  //     context: context,
+  //     builder: (BuildContext dialogContext) {
+  //       return AlertDialog(
+  //         title: const Text('Save Recording'),
+  //         content: Column(
+  //           mainAxisSize: MainAxisSize.min,
+  //           children: [
+  //             TextField(
+  //               controller: titleController,
+  //               decoration: const InputDecoration(labelText: 'Title'),
+  //             ),
+  //             TextField(
+  //               controller: descController,
+  //               decoration: const InputDecoration(labelText: 'Description'),
+  //             ),
+  //           ],
+  //         ),
+  //         actions: [
+  //           TextButton(
+  //             onPressed: () => Navigator.of(dialogContext).pop(false),
+  //             child: const Text('Cancel'),
+  //           ),
+  //           TextButton(
+  //             onPressed: () {
+  //               Navigator.of(dialogContext).pop(true);
+  //             },
+  //             child: const Text('Save', style: TextStyle(color: Colors.blue)),
+  //           ),
+  //         ],
+  //       );
+  //     },
+  //   );
+
+  //   if (saved == true) {
+  //     await saveAudioFile(
+  //       audioData,
+  //       titleController.text != ''
+  //           ? titleController.text
+  //           : '${widget.pdfName}-${new DateTime.timestamp()}',
+  //       pdfPath,
+  //     ); // Call your save function
+  //     print('${new DateTime.timestamp()}');
+  //   }
+  // }
   //=================================================================             widget             ============================================================
 
   @override
@@ -303,47 +372,46 @@ class _PdfxpageState extends State<Pdfscreen> {
           SizedBox(
             width: MediaQuery.of(context).size.width,
             height: MediaQuery.of(context).size.height - 50 - 45,
-            child:
-                pdfPath == ''
-                    ? const Center(child: CircularProgressIndicator())
-                    : pdfView(),
+            child: pdfPath == ''
+                ? const Center(child: CircularProgressIndicator())
+                : pdfView(),
           ),
-          Expanded(
-            child: SizedBox(
-              height: 30,
-
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                mainAxisSize: MainAxisSize.max,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Expanded(
-                    child: SizedBox(
-                      width: MediaQuery.of(context).size.width * 0.1,
-                    ),
-                  ),
-                  Expanded(
-                    child: SizedBox(
-                      width: MediaQuery.of(context).size.width * 0.3,
-                      child: playRecord(),
-                    ),
-                  ),
-                  Expanded(
-                    child: SizedBox(
-                      width: MediaQuery.of(context).size.width * 0.3,
-                      child: myRecode(),
-                    ),
-                  ),
-                  Expanded(
-                    child: SizedBox(
-                      width: MediaQuery.of(context).size.width * 0.3,
-                      child: recordMe(),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
+          AudioRecordScreen()
+          // Expanded(
+          //   child: SizedBox(
+          //     height: 30,
+          //     child: Row(
+          //       mainAxisAlignment: MainAxisAlignment.spaceAround,
+          //       mainAxisSize: MainAxisSize.max,
+          //       crossAxisAlignment: CrossAxisAlignment.center,
+          //       children: [
+          //         Expanded(
+          //           child: SizedBox(
+          //             width: MediaQuery.of(context).size.width * 0.1,
+          //           ),
+          //         ),
+          //         Expanded(
+          //           child: SizedBox(
+          //             width: MediaQuery.of(context).size.width * 0.3,
+          //             child: playRecord(),
+          //           ),
+          //         ),
+          //         Expanded(
+          //           child: SizedBox(
+          //             width: MediaQuery.of(context).size.width * 0.3,
+          //             child: myRecode(),
+          //           ),
+          //         ),
+          //         Expanded(
+          //           child: SizedBox(
+          //             width: MediaQuery.of(context).size.width * 0.3,
+          //             child: recordMe(),
+          //           ),
+          //         ),
+          //       ],
+          //     ),
+          //   ),
+          // ),
         ],
       ),
     );
@@ -351,9 +419,9 @@ class _PdfxpageState extends State<Pdfscreen> {
 
   Widget pdfView() {
     return
-    //  Expanded(
-    //   child:
-    PdfViewPinch(
+        //  Expanded(
+        //   child:
+        PdfViewPinch(
       scrollDirection: Axis.horizontal,
       controller: pdfControllerPinch,
       onDocumentLoaded: (doc) {
@@ -412,7 +480,6 @@ class _PdfxpageState extends State<Pdfscreen> {
         IconButton(
           onPressed: () async {
             setState(() {
-              isMyRecordPaused = true;
               isRecordingPasued = true;
             });
             if (isRecordPaused && isRecordPlaying) {
@@ -441,127 +508,115 @@ class _PdfxpageState extends State<Pdfscreen> {
                 : Icons.play_arrow,
           ),
         ),
-
         isRecordPlaying
             ? IconButton(
-              onPressed: () {
-                setState(() {
-                  isRecordPlaying = false;
-                });
-              },
-              padding: EdgeInsets.zero,
-              icon: Icon(isRecordPlaying ? Icons.stop : Icons.pause),
-            )
+                onPressed: () {
+                  setState(() {
+                    isRecordPlaying = false;
+                  });
+                },
+                padding: EdgeInsets.zero,
+                icon: Icon(isRecordPlaying ? Icons.stop : Icons.pause),
+              )
             : SizedBox.shrink(),
       ],
     );
   }
 
   // icon: Image.asset('assets/icons/reading.png', width: 24, height: 24),
-  Widget myRecode() {
-    return Row(
-      children: [
-        IconButton(
-          onPressed: () async {
-            setState(() {
-              // isRecordPaused = true;
-              // isRecordingPasued = true;
-            });
-            if (isMyRecordPaused && isMyRecordPlaying) {
-              setState(() {
-                isMyRecordPaused = false;
-                isMyRecordPlaying = true;
-              });
-            } else if (!isMyRecordPaused && isMyRecordPlaying) {
-              await _myAudioPause();
-              // setState(() {
-              //   isMyRecordPaused = true;
-              //   isMyRecordPlaying = true;
-              // });
-            } else {
-              await _myAudioStart();
-              // setState(() {
-              //   isMyRecordPlaying = true;
-              //   isMyRecordPaused = false;
-              // });
-            }
-          },
-          padding: EdgeInsets.zero,
-          icon:
-              isMyRecordPlaying
-                  ? !isMyRecordPaused
-                      ? Icon(Icons.pause_circle, color: Colors.blue)
-                      : Icon(Icons.play_arrow, color: Colors.blue)
-                  : Image.asset(
-                    'assets/icons/reading.png',
-                    width: 24,
-                    height: 24,
-                  ),
-        ),
+  // Widget myRecode() {
+  //   return Row(
+  //     children: [
+  //       IconButton(
+  //         onPressed: () async {
+  //           setState(() {
+  //             // isRecordPaused = true;
+  //             // isRecordingPasued = true;
+  //           });
+  //           if (isMyRecordPaused && isMyRecordPlaying) {
+  //             setState(() {
+  //               isMyRecordPaused = false;
+  //               isMyRecordPlaying = true;
+  //             });
+  //           } else if (!isMyRecordPaused && isMyRecordPlaying) {
+  //             await _myAudioPause();
+  //           } else {
+  //             await _myAudioStart();
+  //           }
+  //         },
+  //         padding: EdgeInsets.zero,
+  //         icon: isMyRecordPlaying
+  //             ? !isMyRecordPaused
+  //                 ? Icon(Icons.pause_circle, color: Colors.blue)
+  //                 : Icon(Icons.play_arrow, color: Colors.blue)
+  //             : Image.asset(
+  //                 'assets/icons/reading.png',
+  //                 width: 24,
+  //                 height: 24,
+  //               ),
+  //       ),
+  //       isMyRecordPlaying
+  //           ? IconButton(
+  //               onPressed: () {
+  //                 setState(() {
+  //                   isMyRecordPlaying = false;
+  //                 });
+  //               },
+  //               padding: EdgeInsets.zero,
+  //               icon: Icon(isMyRecordPlaying ? Icons.stop : Icons.pause),
+  //               color: Colors.blue,
+  //             )
+  //           : SizedBox.shrink(),
+  //     ],
+  //   );
+  // }
 
-        isMyRecordPlaying
-            ? IconButton(
-              onPressed: () {
-                setState(() {
-                  isMyRecordPlaying = false;
-                });
-              },
-              padding: EdgeInsets.zero,
-              icon: Icon(isMyRecordPlaying ? Icons.stop : Icons.pause),
-              color: Colors.blue,
-            )
-            : SizedBox.shrink(),
-      ],
-    );
-  }
-
-  Widget recordMe() {
-    return Row(
-      children: [
-        IconButton(
-          onPressed: () async {
-            setState(() {
-              isMyRecordPaused = true;
-              isRecordPaused = true;
-            });
-            if (isRecordingPasued && isRecording) {
-              setState(() {
-                isRecordingPasued = false;
-                isRecording = true;
-              });
-            } else if (!isRecordingPasued && isRecording) {
-              await _recordPause();
-              setState(() {
-                isRecordingPasued = true;
-                isRecording = true;
-              });
-            } else {
-              await _recordStart();
-            }
-          },
-          padding: EdgeInsets.zero,
-          icon:
-              isRecording
-                  ? !isRecordingPasued
-                      ? Image.asset('assets/icons/podcast.gif')
-                      : Icon(Icons.play_arrow, color: Colors.red)
-                  : Icon(Icons.mic, color: Colors.red),
-        ),
-
-        isRecording
-            ? IconButton(
-              onPressed: () async {
-                saveConfirmation(context);
-                // await _recordStop();
-              },
-              padding: EdgeInsets.zero,
-              icon: Icon(
-                isRecording ? Icons.stop : Icons.pause,
-                color: Colors.red,
-              ),
-            )
-            : SizedBox.shrink(),
-      ],
-    );
-  }
+  // Widget recordMe() {
+  //   return Row(
+  //     children: [
+  //       IconButton(
+  //         onPressed: () async {
+  //           setState(() {
+  //             isMyRecordPaused = true;
+  //             isRecordPaused = true;
+  //           });
+  //           if (isRecordingPasued && isRecording) {
+  //             setState(() {
+  //               isRecordingPasued = false;
+  //               isRecording = true;
+  //             });
+  //           } else if (!isRecordingPasued && isRecording) {
+  //             await _recordPause();
+  //             setState(() {
+  //               isRecordingPasued = true;
+  //               isRecording = true;
+  //             });
+  //           } else {
+  //             await _recordStart();
+  //           }
+  //         },
+  //         padding: EdgeInsets.zero,
+  //         icon: isRecording
+  //             ? !isRecordingPasued
+  //                 // ? Image.asset('icons/podcast.gif')
+  //                 ? Image.asset('assets/icons/podcast.gif')
+  //                 : Icon(Icons.play_arrow, color: Colors.red)
+  //             : Icon(Icons.mic, color: Colors.red),
+  //       ),
+  //       isRecording
+  //           ? IconButton(
+  //               onPressed: () async {
+  //                 showStopConfirmation(context);
+  //                 // await _recordStop();
+  //               },
+  //               padding: EdgeInsets.zero,
+  //               icon: Icon(
+  //                 isRecording ? Icons.stop : Icons.pause,
+  //                 color: Colors.red,
+  //               ),
+  //             )
+  //           : SizedBox.shrink(),
+  //     ],
+  //   );
+  // }
 }

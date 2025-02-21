@@ -2,12 +2,13 @@ import 'package:flutter_ebook/Services/reset_password.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_ebook/Pages/HomePage.dart';
+import 'package:flutter_ebook/data/global.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:flutter_ebook/Services/otp_page.dart';
 import 'CreateProfilePage.dart';
 import 'SignupPage.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 // import 'package:flutter_localization/flutter_localization.dart';
-import '../language.dart';
 import 'package:easy_localization/easy_localization.dart';
 
 class LoginPage extends StatefulWidget {
@@ -67,10 +68,13 @@ class _LoginPage extends State<LoginPage> {
         return;
       }
 
-      await FirebaseAuth.instance.signInWithEmailAndPassword(
-        email: id.text.toString(),
-        password: password.text.toString(),
-      );
+      UserCredential userCredential = await FirebaseAuth.instance
+          .signInWithEmailAndPassword(
+            email: id.text.toString(),
+            password: password.text.toString(),
+          );
+      String uid = userCredential.user!.uid;
+      globalData.updateUser(id.text.toString(), uid);
       isEmailVerified();
     } on FirebaseAuthException catch (e) {
       if (e.code == 'invalid-email') {

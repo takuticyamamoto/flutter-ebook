@@ -24,8 +24,8 @@ class _EbooklistpageState extends State<EBookListPage> {
   void dispose() {
     // Reset to default orientation when exiting
     SystemChrome.setPreferredOrientations([
-      DeviceOrientation.portraitUp,
-      DeviceOrientation.portraitDown,
+      // DeviceOrientation.portraitUp,
+      // DeviceOrientation.portraitDown,
     ]);
     super.dispose();
   }
@@ -41,6 +41,10 @@ class _EbooklistpageState extends State<EBookListPage> {
   }
 
   initiate() async {
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.landscapeLeft,
+      DeviceOrientation.landscapeRight,
+    ]);
     setState(() {
       pdfFiles = globalData.pdfFiles;
     });
@@ -55,36 +59,35 @@ class _EbooklistpageState extends State<EBookListPage> {
         title: Text("PDF Files"),
         backgroundColor: const Color.fromARGB(255, 54, 200, 244),
       ),
-      body:
-          pdfFiles.isEmpty
-              ? Center(child: CircularProgressIndicator())
-              : ListView.builder(
-                itemCount: pdfFiles.length,
-                itemBuilder: (context, index) {
-                  return ListTile(
-                    title: Text(pdfFiles[index]["name"] ?? "Unknown"),
-                    // subtitle: Text(pdfFiles[index]["url"] ?? ""),
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) {
-                            // return PDFXPage(
-                            //   pdfName: pdfFiles[index]['name'] ?? '',
-                            //   pdfURL: pdfFiles[index]['url'] ?? '',
-                            // );
+      body: pdfFiles.isEmpty
+          ? Center(child: CircularProgressIndicator())
+          : ListView.builder(
+              itemCount: pdfFiles.length,
+              itemBuilder: (context, index) {
+                return ListTile(
+                  title: Text(pdfFiles[index]["name"] ?? "Unknown"),
+                  // subtitle: Text(pdfFiles[index]["url"] ?? ""),
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) {
+                          // return PDFXPage(
+                          //   pdfName: pdfFiles[index]['name'] ?? '',
+                          //   pdfURL: pdfFiles[index]['url'] ?? '',
+                          // );
 
-                            return Pdfscreen(
-                              pdfName: pdfFiles[index]['name'] ?? '',
-                              pdfURL: pdfFiles[index]['url'] ?? '',
-                            );
-                          },
-                        ),
-                      );
-                    },
-                  );
-                },
-              ),
+                          return Pdfscreen(
+                            pdfName: pdfFiles[index]['name'] ?? '',
+                            pdfURL: pdfFiles[index]['url'] ?? '',
+                          );
+                        },
+                      ),
+                    );
+                  },
+                );
+              },
+            ),
     );
   }
 }

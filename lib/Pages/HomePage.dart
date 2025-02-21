@@ -4,9 +4,12 @@ import 'package:flutter_ebook/Pages/PDFScreen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_ebook/Pages/LoginPage.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_ebook/Services/audio_download.dart';
+import 'package:flutter_ebook/Services/percent_indigator.dart';
 import 'package:flutter_ebook/Widgets/animation.dart';
 // import 'package:mobile_scanner/mobile_scanner.dart';
 // import 'package:flutter_ebook/Pages/Qr_Code_Scanner.dart';
+import 'package:audioplayers/audioplayers.dart';
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key, required this.title});
@@ -19,7 +22,7 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   FirebaseAuth auth = FirebaseAuth.instance;
-
+  AudioPlayer audioPlayer = AudioPlayer();
   signOut() async {
     await auth.signOut();
     Navigator.pushReplacement(
@@ -94,8 +97,8 @@ class _MyHomePageState extends State<MyHomePage> {
                       onPressed: () {
                         Navigator.of(context).push(
                           MaterialPageRoute(
-                            builder:
-                                (context) => EpubReaderScreen(filePath: ''),
+                            builder: (context) => AudioDownloadScreen(),
+                            // (context) => EpubReaderScreen(filePath: ''),
                           ),
                         );
                       },
@@ -103,11 +106,12 @@ class _MyHomePageState extends State<MyHomePage> {
                     ),
                     IconButton(
                       onPressed: () {
-                        Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (context) => AnimationIconsWidget(),
-                          ),
-                        );
+                        // Navigator.of(context).push(
+                        //   MaterialPageRoute(
+                        //     builder: (context) => AnimationIconsWidget(),
+                        //   ),
+                        // );
+                        audioPlayer.play(AssetSource('audios/audio4.mp3'));
                       },
                       icon: Icon(Icons.qr_code_scanner_sharp),
                     ),

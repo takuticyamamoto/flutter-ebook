@@ -51,7 +51,7 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions android = FirebaseOptions(
     apiKey: 'AIzaSyCUCcboEvPD3xbSiLv-vOKFmXjZITeIhbs',
-    appId: '1:700244737798:android:7daf5978000178ad8e6887',
+    appId: '1:700244737798:android:89b3032cd361452b8e6887',
     messagingSenderId: '700244737798',
     projectId: 'unprocessedsns',
     databaseURL: 'https://unprocessedsns-default-rtdb.firebaseio.com',
@@ -60,7 +60,7 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions ios = FirebaseOptions(
     apiKey: 'AIzaSyCB8lQfG60E_MPDKnVrgKZFwiYBYaOJ_VA',
-    appId: '1:700244737798:ios:a8e0edc25c1ca0fe8e6887',
+    appId: '1:700244737798:ios:66f2f1190071e8038e6887',
     messagingSenderId: '700244737798',
     projectId: 'unprocessedsns',
     databaseURL: 'https://unprocessedsns-default-rtdb.firebaseio.com',
@@ -68,5 +68,4 @@ class DefaultFirebaseOptions {
     iosClientId: '700244737798-tbq98j47qgftoc6bku0rvm3ae33djvpo.apps.googleusercontent.com',
     iosBundleId: 'com.example.flutterEbook',
   );
-
 }

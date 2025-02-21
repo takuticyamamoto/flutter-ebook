@@ -1,27 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_ebook/Pages/Audio_Record.dart';
 import 'package:flutter_ebook/data/global.dart';
 import 'dart:async';
 import 'dart:io';
-import 'package:animated_icon/animated_icon.dart';
 import 'package:flutter/foundation.dart';
 import 'package:just_audio/just_audio.dart';
-import 'dart:math';
-// import 'package:flutter_sound/flutter_sound.dart';
 import 'package:path_provider/path_provider.dart';
-import '../Widgets/animation.dart';
-import 'package:http/http.dart' as http;
 import 'package:path/path.dart' as path;
 import 'package:record/record.dart';
 import 'package:flutter_cached_pdfview/flutter_cached_pdfview.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:audio_waveforms/audio_waveforms.dart';
-// import 'package:cache_audio_player_plus/cache_audio_player_plus.dart';
 import 'package:pdfx/pdfx.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
-import 'package:animated_icon/animated_icon.dart';
-// import 'animate_icon_screen.dart';
 
 class PDFXPage extends StatefulWidget {
   final String pdfURL;
@@ -128,12 +118,19 @@ class _PdfxpageState extends State<PDFXPage> {
   }
 
   //=================================================================             record             ============================================================
-
   _recordStart() async {
     if (await audioRecorder.hasPermission()) {
       final Directory appDir = await getApplicationDocumentsDirectory();
       final String filePath = path.join(appDir.path, 'recording.wav');
-      await audioRecorder.start(const RecordConfig(), path: filePath);
+      await audioRecorder.start(
+        RecordConfig(
+          encoder: AudioEncoder.wav, // Ensure high-quality recording
+          sampleRate: 44100, // Increase sample rate
+          numChannels: 2, // Use stereo for better quality
+          bitRate: 128000, // Increase bit rate
+        ),
+        path: filePath,
+      );
       setState(() {
         isRecording = true;
         isRecordingPasued = false;
@@ -160,7 +157,7 @@ class _PdfxpageState extends State<PDFXPage> {
   //=================================================================             my audio             ============================================================
 
   _myAudioStart() async {
-    print('play is called ');
+    await audioPlayer.setVolume(1.0);
     await audioPlayer.setFilePath(recordingPath);
     audioPlayer.play();
     setState(() {
@@ -195,7 +192,11 @@ class _PdfxpageState extends State<PDFXPage> {
     if (await audioRecorder.hasPermission()) {
       final Directory appDir = await getApplicationDocumentsDirectory();
       final String filePath = path.join(appDir.path, 'recording.wav');
-      await audioRecorder.start(const RecordConfig(), path: filePath);
+      // await audioRecorder.start(const RecordConfig(), path: filepath);
+      await audioRecorder.start(
+        const RecordConfig(),
+        path: 'assets/audios/audio4.mp3',
+      );
       setState(() {
         isRecording = true;
         isRecordingPasued = false;
@@ -226,8 +227,8 @@ class _PdfxpageState extends State<PDFXPage> {
     if (!isRecorderInitialized) return;
     // Reset to default orientation when exiting
     SystemChrome.setPreferredOrientations([
-      DeviceOrientation.portraitUp,
-      DeviceOrientation.portraitDown,
+      // DeviceOrientation.portraitUp,
+      // DeviceOrientation.portraitDown,
     ]);
 
     // audioRecorder!.closeRecorder();
@@ -259,15 +260,13 @@ class _PdfxpageState extends State<PDFXPage> {
           SizedBox(
             width: MediaQuery.of(context).size.width,
             height: MediaQuery.of(context).size.height - 50 - 45,
-            child:
-                pdfPath == ''
-                    ? const Center(child: CircularProgressIndicator())
-                    : pdfView(),
+            child: pdfPath == ''
+                ? const Center(child: CircularProgressIndicator())
+                : pdfView(),
           ),
           Expanded(
             child: SizedBox(
               height: 30,
-
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 mainAxisSize: MainAxisSize.max,
@@ -307,9 +306,9 @@ class _PdfxpageState extends State<PDFXPage> {
 
   Widget pdfView() {
     return
-    //  Expanded(
-    //   child:
-    PdfViewPinch(
+        //  Expanded(
+        //   child:
+        PdfViewPinch(
       scrollDirection: Axis.horizontal,
       controller: pdfControllerPinch,
       onDocumentLoaded: (doc) {
@@ -397,17 +396,16 @@ class _PdfxpageState extends State<PDFXPage> {
                 : Icons.play_arrow,
           ),
         ),
-
         isRecordPlaying
             ? IconButton(
-              onPressed: () {
-                setState(() {
-                  isRecordPlaying = false;
-                });
-              },
-              padding: EdgeInsets.zero,
-              icon: Icon(isRecordPlaying ? Icons.stop : Icons.pause),
-            )
+                onPressed: () {
+                  setState(() {
+                    isRecordPlaying = false;
+                  });
+                },
+                padding: EdgeInsets.zero,
+                icon: Icon(isRecordPlaying ? Icons.stop : Icons.pause),
+              )
             : SizedBox.shrink(),
       ],
     );
@@ -443,29 +441,27 @@ class _PdfxpageState extends State<PDFXPage> {
             }
           },
           padding: EdgeInsets.zero,
-          icon:
-              isMyRecordPlaying
-                  ? !isMyRecordPaused
-                      ? Icon(Icons.pause_circle, color: Colors.blue)
-                      : Icon(Icons.play_arrow, color: Colors.blue)
-                  : Image.asset(
-                    'assets/icons/reading.png',
-                    width: 24,
-                    height: 24,
-                  ),
+          icon: isMyRecordPlaying
+              ? !isMyRecordPaused
+                  ? Icon(Icons.pause_circle, color: Colors.blue)
+                  : Icon(Icons.play_arrow, color: Colors.blue)
+              : Image.asset(
+                  'assets/icons/reading.png',
+                  width: 24,
+                  height: 24,
+                ),
         ),
-
         isMyRecordPlaying
             ? IconButton(
-              onPressed: () {
-                setState(() {
-                  isMyRecordPlaying = false;
-                });
-              },
-              padding: EdgeInsets.zero,
-              icon: Icon(isMyRecordPlaying ? Icons.stop : Icons.pause),
-              color: Colors.blue,
-            )
+                onPressed: () {
+                  setState(() {
+                    isMyRecordPlaying = false;
+                  });
+                },
+                padding: EdgeInsets.zero,
+                icon: Icon(isMyRecordPlaying ? Icons.stop : Icons.pause),
+                color: Colors.blue,
+              )
             : SizedBox.shrink(),
       ],
     );
@@ -495,25 +491,23 @@ class _PdfxpageState extends State<PDFXPage> {
             }
           },
           padding: EdgeInsets.zero,
-          icon:
-              isRecording
-                  ? !isRecordingPasued
-                      ? Image.asset('assets/icons/podcast.gif')
-                      : Icon(Icons.play_arrow, color: Colors.red)
-                  : Icon(Icons.mic, color: Colors.red),
+          icon: isRecording
+              ? !isRecordingPasued
+                  ? Image.asset('assets/icons/podcast.gif')
+                  : Icon(Icons.play_arrow, color: Colors.red)
+              : Icon(Icons.mic, color: Colors.red),
         ),
-
         isRecording
             ? IconButton(
-              onPressed: () async {
-                await _recordStop();
-              },
-              padding: EdgeInsets.zero,
-              icon: Icon(
-                isRecording ? Icons.stop : Icons.pause,
-                color: Colors.red,
-              ),
-            )
+                onPressed: () async {
+                  await _recordStop();
+                },
+                padding: EdgeInsets.zero,
+                icon: Icon(
+                  isRecording ? Icons.stop : Icons.pause,
+                  color: Colors.red,
+                ),
+              )
             : SizedBox.shrink(),
       ],
     );
