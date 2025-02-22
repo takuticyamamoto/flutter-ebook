@@ -44,9 +44,11 @@ dependencies:
   animated_icon: ^0.0.6
   percent_indicator: ^4.2.4
   audioplayers: ^6.2.0
+  flutter_use: ^0.0.4
+  flutter_smart_dialog: ^4.9.8+6
   # rive_common: ^0.4.15
   # rive_animated_icon: ^2.0.3
-
+  # audiotags: ^1.4.0
 dev_dependencies:
   flutter_test:
     sdk: flutter

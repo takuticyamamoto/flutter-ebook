@@ -1,15 +1,15 @@
 import 'dart:io';
 
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:path/path.dart' as path;
 import 'package:record/record.dart';
 import 'package:flutter/services.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:flutter_ebook/Services/save_audio.dart';
-import 'package:permission_handler/permission_handler.dart';
+import 'package:flutter_ebook/Services/audio_service.dart';
 import 'package:flutter_ebook/data/global.dart';
+import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
+import 'dart:math';
 
 class AudioRecordScreen extends StatefulWidget {
   const AudioRecordScreen({super.key});
@@ -28,36 +28,30 @@ class _AudioRecordScreenState extends State<AudioRecordScreen> {
   bool isMyRecordPlaying = false;
   bool isMyRecordPaused = false;
   bool isRecorderInitialized = false;
-  // bool get _isRecording => audioRecorder!.isRecording;
   String recordingPath = '';
   List<int> audioData = [];
-  // final player = CacheAudioPlayerPlus();
-  // FlutterSoundRecorder? audioRecorder;
-  // late final RecorderControll  er recorderController;
-
+  List<String> audioFiles = [];
   final AudioRecorder audioRecorder = AudioRecorder();
   final AudioPlayer audioPlayer = AudioPlayer();
 
-  //=================================================================              initiate              ============================================================
+  //=================================================================              initiateState              ============================================================
 
   @override
   void initState() {
     super.initState();
-    initiate();
+    initiateState();
   }
 
-  initiate() async {
+  initiateState() async {
     SystemChrome.setPreferredOrientations([
       DeviceOrientation.landscapeLeft,
       DeviceOrientation.landscapeRight,
     ]);
-
-    //------------------------------------------------------------------------------------------------
-
-    // audioRecorder = FlutterSoundRecorder();
-    // await audioRecorder!.openRecorder();
-    isRecorderInitialized = true;
-    setState(() {});
+    final fetchedAudioFiles = await getAudioFiles();
+    setState(() {
+      audioFiles = fetchedAudioFiles;
+      print('$audioFiles=============');
+    });
   }
 
   //=================================================================             record             ============================================================
@@ -164,11 +158,6 @@ class _AudioRecordScreenState extends State<AudioRecordScreen> {
   @override
   void dispose() {
     if (!mounted) return;
-    // Reset to default orientation when exiting
-    SystemChrome.setPreferredOrientations([
-      // DeviceOrientation.portraitUp,
-      // DeviceOrientation.portraitDown,
-    ]);
     audioRecorder.stop();
     audioPlayer.stop();
     isRecorderInitialized = false;
@@ -200,11 +189,11 @@ class _AudioRecordScreenState extends State<AudioRecordScreen> {
     );
 
     if (shouldStop == true) {
-      await showSaveConfirmation(context);
       List<int> _audioData = await _recordStop();
       setState(() {
         audioData = _audioData;
       });
+      await showSaveConfirmation(context);
       // await saveAudioFile(_audioData,  "my_audio.mp3");
     }
   }
@@ -286,10 +275,86 @@ class _AudioRecordScreenState extends State<AudioRecordScreen> {
     );
 
     if (saved == true) {
-      await saveAudioFile(
-          audioData, '${titleController.text}-.-${new DateTime.timestamp()}');
-      print('${new DateTime.timestamp()}');
+      bool fileExists = await doesFileExistWithTitle(titleController.text);
+      if (fileExists) {
+        _showOverwriteConfirmation(context, titleController.text);
+        setState(() {
+          initiateState();
+        });
+      } else {
+        await saveAudioFile(audioData, titleController.text, DateTime.now());
+        setState(() {
+          initiateState();
+        });
+      }
     }
+  }
+
+  Future<bool> doesFileExistWithTitle(String title) async {
+    String uid = globalData.myUid;
+    Directory? directory =
+        await getExternalStorageDirectory(); // Use external storage
+    if (directory == null) throw Exception("No external storage available");
+    Directory targetDir =
+        Directory('${directory.path}/$uid/${globalData.currentPDFName}');
+
+    final files = directory.listSync();
+    for (var file in files) {
+      if (file is File && file.uri.pathSegments.last.contains(title)) {
+        return true; // File with the same title exists
+      }
+    }
+    return false; // No file with the same title
+  }
+
+  void _showOverwriteConfirmation(BuildContext context, String title) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('File Already Exists'),
+          content: Text(
+              'A file with the title "$title" already exists. Do you want to overwrite it?'),
+          actions: <Widget>[
+            TextButton(
+              child: Text('Cancel'),
+              onPressed: () {
+                Navigator.of(context).pop(); // Close the dialog and do nothing
+              },
+            ),
+            TextButton(
+              child: Text('Yes'),
+              onPressed: () async {
+                // Proceed to overwrite the file
+                await overwriteAudioFile(title);
+                Navigator.of(context).pop(); // Close the dialog
+              },
+            ),
+            TextButton(
+              child: Text('No'),
+              onPressed: () {
+                Navigator.of(context)
+                    .pop(); // Close the dialog without doing anything
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> overwriteAudioFile(String title) async {
+    String uid = globalData.myUid;
+    Directory? directory =
+        await getExternalStorageDirectory(); // Use external storage
+    if (directory == null) throw Exception("No external storage available");
+    Directory targetDir =
+        Directory('${directory.path}/$uid/${globalData.currentPDFName}');
+    File('$targetDir/$title').deleteSync();
+
+    await saveAudioFile(audioData, title, DateTime.now());
+    initiateState();
+    print('File "$title" has been overwritten');
   }
 
   @override
@@ -297,7 +362,7 @@ class _AudioRecordScreenState extends State<AudioRecordScreen> {
     return Center(
       child: Expanded(
         child: SizedBox(
-          height: 30,
+          height: 50,
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             mainAxisSize: MainAxisSize.max,
@@ -382,51 +447,69 @@ class _AudioRecordScreenState extends State<AudioRecordScreen> {
     );
   }
 
-  // icon: Image.asset('assets/icons/reading.png', width: 24, height: 24),
   Widget myRecode() {
     return Row(
       children: [
         IconButton(
           onPressed: () async {
-            setState(() {
-              // isRecordPaused = true;
-              // isRecordingPasued = true;
-            });
-            if (isMyRecordPaused && isMyRecordPlaying) {
-              setState(() {
-                isMyRecordPaused = false;
-                isMyRecordPlaying = true;
-              });
-            } else if (!isMyRecordPaused && isMyRecordPlaying) {
-              await _myAudioPause();
-            } else {
-              await _myAudioStart();
-            }
+            initiateState();
+            _show();
           },
-          padding: EdgeInsets.zero,
-          icon: isMyRecordPlaying
-              ? !isMyRecordPaused
-                  ? Icon(Icons.pause_circle, color: Colors.blue)
-                  : Icon(Icons.play_arrow, color: Colors.blue)
-              : Image.asset(
-                  'assets/icons/reading.png',
-                  width: 24,
-                  height: 24,
-                ),
-        ),
-        isMyRecordPlaying
-            ? IconButton(
-                onPressed: () {
-                  setState(() {
-                    isMyRecordPlaying = false;
-                  });
-                },
-                padding: EdgeInsets.zero,
-                icon: Icon(isMyRecordPlaying ? Icons.stop : Icons.pause),
-                color: Colors.blue,
-              )
-            : SizedBox.shrink(),
+          icon: Image.asset('assets/icons/reading.png', width: 40, height: 40),
+        )
       ],
+    );
+  }
+
+  void _show() async {
+    SmartDialog.show(
+        alignment: Alignment.centerRight,
+        builder: (_) {
+          return Container(
+            width: double.infinity,
+            height: double.infinity,
+            alignment: Alignment.bottomCenter,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [_listDialog()],
+            ),
+          );
+        });
+  }
+
+  Widget _listDialog() {
+    return StatefulBuilder(
+      builder: (context, setStateDialog) {
+        return Container(
+          height: MediaQuery.of(context).size.height * 0.93,
+          width: 350,
+          color: Colors.white,
+          child: ListView(
+            children: List.generate(audioFiles.length, (index) {
+              return ListTile(
+                title: TextButton(
+                  child: Text(audioFiles[index]),
+                  onPressed: () async {
+                    await audioPlayer
+                        .setFilePath(await getFilePath(audioFiles[index]));
+                    audioPlayer.play();
+                  },
+                ),
+                trailing: IconButton(
+                  onPressed: () async {
+                    await deleteFile(await getFilePath(audioFiles[index]));
+                    await initiateState();
+                    // Update both the main state and the dialog's state
+                    setState(() {});
+                    setStateDialog(() {});
+                  },
+                  icon: Icon(Icons.delete, color: Colors.red),
+                ),
+              );
+            }),
+          ),
+        );
+      },
     );
   }
 

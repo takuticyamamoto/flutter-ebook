@@ -6,6 +6,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'firebase_options.dart';
 import 'package:flutter_ebook/data/global.dart';
 import 'package:flutter_ebook/Services/pdf_list.dart';
+import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -67,6 +68,8 @@ class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      navigatorObservers: [FlutterSmartDialog.observer],
+      builder: FlutterSmartDialog.init(),
       localizationsDelegates: context.localizationDelegates,
       supportedLocales: context.supportedLocales,
       locale: context.locale,

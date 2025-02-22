@@ -398,6 +398,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.4.3"
+  flutter_hooks:
+    dependency: transitive
+    description:
+      name: flutter_hooks
+      sha256: cde36b12f7188c85286fba9b38cc5a902e7279f36dd676967106c041dc9dde70
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.20.5"
   flutter_html:
     dependency: transitive
     description:
@@ -443,6 +451,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.4.0"
+  flutter_smart_dialog:
+    dependency: "direct main"
+    description:
+      name: flutter_smart_dialog
+      sha256: "030eac9f61c79d6c11a9da75f3df86b64060493bfc7f723fe59181a63b981f70"
+      url: "https://pub.dev"
+    source: hosted
+    version: "4.9.8+6"
   flutter_sound:
     dependency: "direct main"
     description:
@@ -472,6 +488,14 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
+  flutter_use:
+    dependency: "direct main"
+    description:
+      name: flutter_use
+      sha256: "32b9741385157c2e30887cf602a9b3b7f0144946101d422a394a356bce2e69e5"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.0.4"
   flutter_web_plugins:
     dependency: transitive
     description: flutter
