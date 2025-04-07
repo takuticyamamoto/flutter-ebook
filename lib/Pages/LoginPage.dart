@@ -1,3 +1,4 @@
+import 'package:flutter_ebook/Services/pdf_list.dart';
 import 'package:flutter_ebook/Services/reset_password.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -7,8 +8,6 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:flutter_ebook/Services/otp_page.dart';
 import 'CreateProfilePage.dart';
 import 'SignupPage.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-// import 'package:flutter_localization/flutter_localization.dart';
 import 'package:easy_localization/easy_localization.dart';
 
 class LoginPage extends StatefulWidget {
@@ -21,9 +20,7 @@ class LoginPage extends StatefulWidget {
 String selectedLanguage = 'ja';
 
 class _LoginPage extends State<LoginPage> {
-  // final FlutterLocalization _localization = FlutterLocalization.instance;
-
-  // =========================================Declaring are the required variables=============================================
+  // =========================================          Declaring are the required variables=============================================
   final _formKey = GlobalKey<FormState>();
 
   var id = TextEditingController();
@@ -68,13 +65,13 @@ class _LoginPage extends State<LoginPage> {
         return;
       }
 
-      UserCredential userCredential = await FirebaseAuth.instance
-          .signInWithEmailAndPassword(
-            email: id.text.toString(),
-            password: password.text.toString(),
-          );
+      UserCredential userCredential =
+          await FirebaseAuth.instance.signInWithEmailAndPassword(
+        email: id.text.toString(),
+        password: password.text.toString(),
+      );
       String uid = userCredential.user!.uid;
-      globalData.updateUser(id.text.toString(), uid);
+      // globalData.updateUser(id.text.toString(), uid);
       isEmailVerified();
     } on FirebaseAuthException catch (e) {
       if (e.code == 'invalid-email') {
@@ -161,9 +158,7 @@ class _LoginPage extends State<LoginPage> {
       idToken: googleAuth?.idToken,
     );
 
-    await FirebaseAuth.instance
-        .signInWithCredential(credential)
-        .then(
+    await FirebaseAuth.instance.signInWithCredential(credential).then(
           (value) => {
             if (value.user != null) {firstLogin()},
           },
@@ -193,7 +188,7 @@ class _LoginPage extends State<LoginPage> {
     if (user != null) {
       DateTime? creation = user.metadata.creationTime;
       DateTime? lastLogin = user.metadata.lastSignInTime;
-
+      final fetchedFreeBookList = await freeBookList();
       if (creation == lastLogin) {
         Navigator.pushReplacement(
           context,
@@ -206,13 +201,12 @@ class _LoginPage extends State<LoginPage> {
         // }
       } else {
         if (mounted) {
+          await globalData.updateFreeBookList(fetchedFreeBookList);
           Navigator.pushReplacement(
             context,
-            MaterialPageRoute(
-              builder: (context) {
-                return MyHomePage(title: "Hello");
-              },
-            ),
+            MaterialPageRoute(builder: (context) {
+              return MyHomePage(title: "Hello");
+            }),
           );
         }
       }
@@ -258,10 +252,8 @@ class _LoginPage extends State<LoginPage> {
                 child: Image.asset('assets/images/login.png'),
               ),
               Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 30.0,
-                  vertical: 10,
-                ),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 30.0, vertical: 10),
                 child: Column(
                   children: [
                     // =========================================================  Login Text ==============================================
@@ -273,10 +265,9 @@ class _LoginPage extends State<LoginPage> {
                           Text(
                             'login'.tr(),
                             style: TextStyle(
-                              fontSize: 25,
-                              fontWeight: FontWeight.w700,
-                              fontFamily: 'Poppins',
-                            ),
+                                fontSize: 25,
+                                fontWeight: FontWeight.w700,
+                                fontFamily: 'Poppins'),
                           ),
                           DropdownButtonHideUnderline(
                             child: DropdownButton<String>(
@@ -288,17 +279,11 @@ class _LoginPage extends State<LoginPage> {
                               },
                               items: [
                                 DropdownMenuItem<String>(
-                                  value: "ch",
-                                  child: Text("中文"),
-                                ),
+                                    value: "ch", child: Text("中文")),
                                 DropdownMenuItem<String>(
-                                  value: "en",
-                                  child: Text("English"),
-                                ),
+                                    value: "en", child: Text("English")),
                                 DropdownMenuItem<String>(
-                                  value: "ja",
-                                  child: Text("日本語"),
-                                ),
+                                    value: "ja", child: Text("日本語")),
                               ],
                             ),
                           ),
@@ -342,10 +327,9 @@ class _LoginPage extends State<LoginPage> {
                               obscureText: notvisible,
                               decoration: InputDecoration(
                                 prefixIcon: const Icon(
-                                  size: 20,
-                                  Icons.lock_outline_rounded,
-                                  color: Colors.grey,
-                                ),
+                                    size: 20,
+                                    Icons.lock_outline_rounded,
+                                    color: Colors.grey),
                                 labelText: 'password'.tr(),
                                 suffixIcon: IconButton(
                                   onPressed: () {

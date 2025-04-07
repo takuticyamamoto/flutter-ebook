@@ -50,22 +50,21 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyCUCcboEvPD3xbSiLv-vOKFmXjZITeIhbs',
-    appId: '1:700244737798:android:89b3032cd361452b8e6887',
-    messagingSenderId: '700244737798',
-    projectId: 'unprocessedsns',
-    databaseURL: 'https://unprocessedsns-default-rtdb.firebaseio.com',
-    storageBucket: 'unprocessedsns.firebasestorage.app',
+    apiKey: 'AIzaSyDMale5KsZM0X0CgxZv76naW4sHb4G2ox4',
+    appId: '1:509277966777:android:a1728470d036bda0a7e668',
+    messagingSenderId: '509277966777',
+    projectId: 'ebook-megahoshi',
+    storageBucket: 'ebook-megahoshi.firebasestorage.app',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyCB8lQfG60E_MPDKnVrgKZFwiYBYaOJ_VA',
-    appId: '1:700244737798:ios:66f2f1190071e8038e6887',
-    messagingSenderId: '700244737798',
-    projectId: 'unprocessedsns',
-    databaseURL: 'https://unprocessedsns-default-rtdb.firebaseio.com',
-    storageBucket: 'unprocessedsns.firebasestorage.app',
-    iosClientId: '700244737798-tbq98j47qgftoc6bku0rvm3ae33djvpo.apps.googleusercontent.com',
+    apiKey: 'AIzaSyDrES6yPMREOY-ZQkGT2YI78I3YV43gxQY',
+    appId: '1:509277966777:ios:9115024d9c7f4dcfa7e668',
+    messagingSenderId: '509277966777',
+    projectId: 'ebook-megahoshi',
+    storageBucket: 'ebook-megahoshi.firebasestorage.app',
+    iosClientId: '509277966777-29upcbklulffnj2kt0j0r3jd867n2o6o.apps.googleusercontent.com',
     iosBundleId: 'com.example.flutterEbook',
   );
+
 }

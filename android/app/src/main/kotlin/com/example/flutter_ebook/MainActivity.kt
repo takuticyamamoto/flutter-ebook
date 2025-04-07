@@ -1,4 +1,4 @@
-package com.example.flutter_ebook
+package com.flutter_ebook.fujita
 
 import io.flutter.embedding.android.FlutterActivity
 

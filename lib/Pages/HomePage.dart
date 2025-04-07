@@ -1,17 +1,21 @@
+import 'package:flutter/services.dart';
 import 'package:flutter_ebook/Pages/EBookListPage.dart';
 import 'package:flutter_ebook/Pages/EPubScreen.dart';
+import 'package:flutter_ebook/Pages/EmailVerificationPage.dart';
 import 'package:flutter_ebook/Pages/PDFScreen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_ebook/Pages/LoginPage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_ebook/Services/audio_download.dart';
 import 'package:flutter_ebook/Services/percent_indigator.dart';
+import 'package:flutter_ebook/data/global.dart';
 import 'package:flutter_ebook/widgets/animation.dart';
 // import 'package:mobile_scanner/mobile_scanner.dart';
 // import 'package:flutter_ebook/Pages/Qr_Code_Scanner.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter_ebook/widgets/business.dart';
 import 'package:flutter_ebook/widgets/custome.dart';
+import 'package:flutter_ebook/widgets/mydrawer.dart';
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key, required this.title});
@@ -25,36 +29,59 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   FirebaseAuth auth = FirebaseAuth.instance;
   AudioPlayer audioPlayer = AudioPlayer();
-  signOut() async {
-    await auth.signOut();
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (context) => const LoginPage()),
-    );
+
+  String email = 'default@gmail.com',
+      name = 'ローディング...',
+      username = 'ローディング...',
+      postedText = '',
+      uid = 'default';
+
+  @override
+  void initState() {
+    super.initState();
+    initiate();
+  }
+
+  initiate() async {
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.landscapeLeft,
+      DeviceOrientation.landscapeRight,
+    ]);
+    final fetchedEmail = auth.currentUser!.email ?? email;
+    final fetechedUid = auth.currentUser!.uid;
+    print('$fetchedEmail,  ${fetechedUid}===========');
+    setState(() {
+      globalData.updateUser(fetchedEmail, fetechedUid);
+      // pdfFiles = globalData.pdfFiles;
+    });
+  }
+
+  @override
+  void dispose() {
+    // Reset to default orientation when exiting
+    SystemChrome.setPreferredOrientations([
+      // DeviceOrientation.portraitUp,
+      // DeviceOrientation.portraitDown,
+    ]);
+    super.dispose();
   }
 
   // final MobileScannerController controller = MobileScannerController();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      drawer: MyDrawer(),
       appBar: AppBar(title: Text(widget.title)),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          signOut();
-        },
-        backgroundColor: Colors.green,
-        child: const Icon(Icons.logout_rounded),
-      ),
       body: SafeArea(
         child: SingleChildScrollView(
           child: Column(
             children: [
-              Padding(
-                padding: const EdgeInsets.only(bottom: 16.0),
-                child: Image.network(
-                  'https://geographical.co.uk/wp-content/uploads/somalaya-mountain-range-title.jpg',
-                ),
-              ),
+              // Padding(
+              //   padding: const EdgeInsets.only(bottom: 16.0),
+              //   child: Image.network(
+              //     'https://geographical.co.uk/wp-content/uploads/somalaya-mountain-range-title.jpg',
+              //   ),
+              // ),
               Padding(
                 padding: const EdgeInsets.all(16),
                 child: Row(
@@ -95,7 +122,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    IconButton(
+                    TextButton(
                       onPressed: () {
                         Navigator.of(context).push(
                           MaterialPageRoute(
@@ -104,28 +131,27 @@ class _MyHomePageState extends State<MyHomePage> {
                           ),
                         );
                       },
-                      icon: Icon(Icons.qr_code_scanner_sharp),
+                      child: Text('get my data'),
                     ),
-                    IconButton(
-                      onPressed: () {
-                        Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (context) => AttachDialogBusiness(),
-                          ),
-                        );
-                      },
-                      icon: Icon(Icons.qr_code_scanner_sharp),
-                    ),
-                    IconButton(
-                      onPressed: () {
-                        Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (context) => EBookListPage(),
-                          ),
-                        );
-                      },
-                      icon: Icon(Icons.qr_code_scanner_sharp),
-                    ),
+                    TextButton(
+                        onPressed: () {
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (context) => EmailVerificationPage(),
+                              // builder: (context) => AttachDialogBusiness(),
+                            ),
+                          );
+                        },
+                        child: Text('data')),
+                    TextButton(
+                        onPressed: () {
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (context) => EBookListPage(),
+                            ),
+                          );
+                        },
+                        child: Text('go to book')),
                   ],
                 ),
               ),

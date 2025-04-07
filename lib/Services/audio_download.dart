@@ -39,10 +39,8 @@ class _AudioDownloadScreenState extends State<AudioDownloadScreen> {
       lastBytesTransferred.clear();
     });
 
-    // Preload total file sizes to calculate accurate total bytes
     await calculateTotalFileSize();
 
-    // Start all downloads concurrently
     await Future.wait(audioFiles.map((file) => downloadSingleFile(file)));
   }
 

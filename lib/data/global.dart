@@ -15,6 +15,7 @@ class GlobalData {
   int currentPage = 1;
   String currentPDFName = 'default';
   String fileSavePath = '';
+  List<String> freeBookList = [];
 
   void updateUser(String email, String uid) {
     myEmail = email;
@@ -31,6 +32,14 @@ class GlobalData {
 
   void updateSaveFilePath(String path) {
     fileSavePath = path;
+  }
+
+  void updatePDFFiles(List<Map<String, String>> _pdfFiles) async {
+    pdfFiles = _pdfFiles;
+  }
+
+  updateFreeBookList(List<String> _freeBookList) async {
+    freeBookList = _freeBookList;
   }
 }
 

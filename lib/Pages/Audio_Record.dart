@@ -293,7 +293,8 @@ class _AudioRecordScreenState extends State<AudioRecordScreen> {
   Future<bool> doesFileExistWithTitle(String title) async {
     String uid = globalData.myUid;
     Directory? directory =
-        await getExternalStorageDirectory(); // Use external storage
+        // await getExternalStorageDirectory(); // Use external storage
+        await getApplicationDocumentsDirectory(); // Use external storage
     if (directory == null) throw Exception("No external storage available");
     Directory targetDir =
         Directory('${directory.path}/$uid/${globalData.currentPDFName}');
@@ -346,7 +347,8 @@ class _AudioRecordScreenState extends State<AudioRecordScreen> {
   Future<void> overwriteAudioFile(String title) async {
     String uid = globalData.myUid;
     Directory? directory =
-        await getExternalStorageDirectory(); // Use external storage
+        // await getExternalStorageDirectory(); // Use external storage
+        await getApplicationDocumentsDirectory(); // Use external storage
     if (directory == null) throw Exception("No external storage available");
     Directory targetDir =
         Directory('${directory.path}/$uid/${globalData.currentPDFName}');

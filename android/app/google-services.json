@@ -1,78 +1,34 @@
 {
   "project_info": {
-    "project_number": "700244737798",
-    "firebase_url": "https://unprocessedsns-default-rtdb.firebaseio.com",
-    "project_id": "unprocessedsns",
-    "storage_bucket": "unprocessedsns.firebasestorage.app"
+    "project_number": "509277966777",
+    "project_id": "ebook-megahoshi",
+    "storage_bucket": "ebook-megahoshi.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:700244737798:android:bb1d77c05ca160728e6887",
+        "mobilesdk_app_id": "1:509277966777:android:a1728470d036bda0a7e668",
         "android_client_info": {
-          "package_name": "com.bluepine.camera"
+          "package_name": "com.flutter_ebook.fujita"
         }
       },
       "oauth_client": [
         {
-          "client_id": "700244737798-nia96m1oba31ku4pq3g73lqndha9ls58.apps.googleusercontent.com",
+          "client_id": "509277966777-t3uvquqvmiu61lut68ssq9kvj8hsjjoi.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyCUCcboEvPD3xbSiLv-vOKFmXjZITeIhbs"
+          "current_key": "AIzaSyDMale5KsZM0X0CgxZv76naW4sHb4G2ox4"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "700244737798-nia96m1oba31ku4pq3g73lqndha9ls58.apps.googleusercontent.com",
+              "client_id": "509277966777-t3uvquqvmiu61lut68ssq9kvj8hsjjoi.apps.googleusercontent.com",
               "client_type": 3
-            },
-            {
-              "client_id": "700244737798-9ms3dm0flsqggu181km7gc240esqvvme.apps.googleusercontent.com",
-              "client_type": 2,
-              "ios_info": {
-                "bundle_id": "com.bluepine.camera"
-              }
-            }
-          ]
-        }
-      }
-    },
-    {
-      "client_info": {
-        "mobilesdk_app_id": "1:700244737798:android:89b3032cd361452b8e6887",
-        "android_client_info": {
-          "package_name": "com.example.flutter_ebook"
-        }
-      },
-      "oauth_client": [
-        {
-          "client_id": "700244737798-nia96m1oba31ku4pq3g73lqndha9ls58.apps.googleusercontent.com",
-          "client_type": 3
-        }
-      ],
-      "api_key": [
-        {
-          "current_key": "AIzaSyCUCcboEvPD3xbSiLv-vOKFmXjZITeIhbs"
-        }
-      ],
-      "services": {
-        "appinvite_service": {
-          "other_platform_oauth_client": [
-            {
-              "client_id": "700244737798-nia96m1oba31ku4pq3g73lqndha9ls58.apps.googleusercontent.com",
-              "client_type": 3
-            },
-            {
-              "client_id": "700244737798-9ms3dm0flsqggu181km7gc240esqvvme.apps.googleusercontent.com",
-              "client_type": 2,
-              "ios_info": {
-                "bundle_id": "com.bluepine.camera"
-              }
             }
           ]
         }

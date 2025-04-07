@@ -7,14 +7,12 @@ publish_to: 'none'
 version: 1.0.0+1
 
 environment:
-  # sdk: ^3.7.0
   sdk: ^3.5.4
   flutter: ">=1.17.0"
 dependencies:
   flutter:
     sdk: flutter
   
-
   cloud_firestore: ^5.6.3
   firebase_core: ^3.11.0
   firebase_auth: ^5.4.2
@@ -34,11 +32,9 @@ dependencies:
   path: ^1.9.0
   flutter_cached_pdfview: ^0.4.3
   sqflite: ^2.4.1
-  # audio_waveforms: ^1.2.0
   http: ^0.13.6
   flutter_sound: ^9.2.13
   permission_handler: ^11.3.1
-  # cache_audio_player_plus: ^1.1.0
   pdfx: ^2.8.0
   flutter_cache_manager: ^3.3.1
   animated_icon: ^0.0.6
@@ -46,28 +42,17 @@ dependencies:
   audioplayers: ^6.2.0
   flutter_use: ^0.0.4
   flutter_smart_dialog: ^4.9.8+6
-  # rive_common: ^0.4.15
-  # rive_animated_icon: ^2.0.3
-  # audiotags: ^1.4.0
+  cloud_functions: ^5.3.0
+  badges: ^3.1.2
+  flutter_soloud: ^1.0.0
 dev_dependencies:
   flutter_test:
     sdk: flutter
-
-  
   
   flutter_lints: ^5.0.0
 
-
-
 flutter:
-
-  
-  
-  
   uses-material-design: true
-
-  
-  
   assets:
     - assets/translations/
     - assets/images/

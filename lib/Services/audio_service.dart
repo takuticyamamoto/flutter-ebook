@@ -10,8 +10,8 @@ import 'package:path/path.dart';
 Future<String> getFilePath(String title) async {
   String uid = globalData.myUid;
   Directory? directory =
-      await getExternalStorageDirectory(); // Use external storage
-  // await getApplicationDocumentsDirectory(); // Use external storage
+      // await getExternalStorageDirectory(); // Use external storage
+      await getApplicationDocumentsDirectory(); // Use external storage
   if (directory == null) throw Exception("No external storage available");
   String fullPath = "${directory.path}/$uid/${globalData.currentPDFName}";
 
@@ -59,7 +59,8 @@ Future<List<String>> getAudioFiles() async {
     String currentPDFName = globalData.currentPDFName;
 
     // Get the external storage directory
-    Directory? directory = await getExternalStorageDirectory();
+    // Directory? directory = await getExternalStorageDirectory();
+    Directory? directory = await getApplicationDocumentsDirectory();
     // Directory? directory = await getApplicationDocumentsDirectory();
     if (directory == null) throw Exception("No external storage available");
 

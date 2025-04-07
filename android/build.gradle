@@ -5,26 +5,42 @@ allprojects {
     }
 }
 
-// val newBuildDir: Directory = rootProject.layout.buildDirectory.dir("../../build").get()
-// rootProject.layout.buildDirectory.value(newBuildDir)
+rootProject.buildDir = '../build'
 
-// subprojects {
-//     val newSubprojectBuildDir: Directory = newBuildDir.dir(project.name)
-//     project.layout.buildDirectory.value(newSubprojectBuildDir)
-// }
-// subprojects {
-//     project.evaluationDependsOn(":app")
-// }
+subprojects {
+    afterEvaluate { project ->
+        if (project.hasProperty("kotlin")) {
+            project.tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).all {
+                kotlinOptions {
+                    jvmTarget = "1.8"
+                }
+            }
+        }
+    }
+}
 
-// tasks.register<Delete>("clean") {
-//     delete(rootProject.layout.buildDirectory)
-// }
-rootProject.buildDir = "../build" 
+subprojects {
+    afterEvaluate { project ->
+        if (project.plugins.hasPlugin("com.android.application") ||
+                project.plugins.hasPlugin("com.android.library")) {
+            project.android {
+                compileSdkVersion 34
+            }
+        }
+        if (project.hasProperty('android')) {
+                project.android {
+                    if (namespace == null) {
+                        namespace project.group
+                    }
+                }
+            }
+    }
+}
 subprojects {
     project.buildDir = "${rootProject.buildDir}/${project.name}"
 }
 subprojects {
-    project.evaluationDependsOn(":app")
+    project.evaluationDependsOn(':app')
 }
 
 tasks.register("clean", Delete) {
