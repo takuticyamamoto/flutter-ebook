@@ -7,9 +7,9 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:509277966777:android:a1728470d036bda0a7e668",
+        "mobilesdk_app_id": "1:509277966777:android:c32e4fae26d414d4a7e668",
         "android_client_info": {
-          "package_name": "com.flutter_ebook.fujita"
+          "package_name": "com.flutter.ebook.fujita"
         }
       },
       "oauth_client": [
@@ -29,6 +29,13 @@
             {
               "client_id": "509277966777-t3uvquqvmiu61lut68ssq9kvj8hsjjoi.apps.googleusercontent.com",
               "client_type": 3
+            },
+            {
+              "client_id": "509277966777-29upcbklulffnj2kt0j0r3jd867n2o6o.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.flutterEbook"
+              }
             }
           ]
         }

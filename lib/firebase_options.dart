@@ -51,7 +51,7 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions android = FirebaseOptions(
     apiKey: 'AIzaSyDMale5KsZM0X0CgxZv76naW4sHb4G2ox4',
-    appId: '1:509277966777:android:a1728470d036bda0a7e668',
+    appId: '1:509277966777:android:c32e4fae26d414d4a7e668',
     messagingSenderId: '509277966777',
     projectId: 'ebook-megahoshi',
     storageBucket: 'ebook-megahoshi.firebasestorage.app',
@@ -59,12 +59,11 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions ios = FirebaseOptions(
     apiKey: 'AIzaSyDrES6yPMREOY-ZQkGT2YI78I3YV43gxQY',
-    appId: '1:509277966777:ios:9115024d9c7f4dcfa7e668',
+    appId: '1:509277966777:ios:379d31c06430070aa7e668',
     messagingSenderId: '509277966777',
     projectId: 'ebook-megahoshi',
     storageBucket: 'ebook-megahoshi.firebasestorage.app',
-    iosClientId: '509277966777-29upcbklulffnj2kt0j0r3jd867n2o6o.apps.googleusercontent.com',
-    iosBundleId: 'com.example.flutterEbook',
+    iosClientId: '509277966777-uqiie5kfb6ebpkgmec47ej3abfkh6gc4.apps.googleusercontent.com',
+    iosBundleId: 'com.example.flutterEbook.RunnerTests',
   );
-
 }

@@ -10,7 +10,7 @@ plugins {
 }
 
 android {
-    namespace = "com.flutter_ebook.fujita"
+    namespace = "com.flutter.ebook.fujita"
     compileSdk = 35
     ndkVersion = "27.0.12077973"
     // ndkVersion = "25.1.8937393"
@@ -20,22 +20,18 @@ android {
                 targetCompatibility = JavaVersion.VERSION_11
             }
 
-    // kotlinOptions {
-    //     jvmTarget = JavaVersion.VERSION_17
-    // }
-
     kotlinOptions {
                 jvmTarget = JavaVersion.VERSION_11
             }
     defaultConfig {
-            applicationId = "com.flutter_ebook.fujita"
+            applicationId = "com.flutter.ebook.fujita"
             minSdkVersion 24                                                                          
             targetSdk = flutter.targetSdkVersion
             versionCode = flutter.versionCode
             versionName = flutter.versionName
             multiDexEnabled = true
 
-                    }
+                }
     buildTypes {
         release {
             signingConfig = signingConfigs.debug
