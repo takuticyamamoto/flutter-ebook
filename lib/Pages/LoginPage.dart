@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_ebook/Pages/HomePage.dart';
 import 'package:flutter_ebook/data/global.dart';
-import 'package:google_sign_in/google_sign_in.dart';
+// import 'package:google_sign_in/google_sign_in.dart';
 import 'package:flutter_ebook/Services/otp_page.dart';
 import 'CreateProfilePage.dart';
 import 'SignupPage.dart';
@@ -147,23 +147,23 @@ class _LoginPage extends State<LoginPage> {
 
   // =========================================================  Login Using Google function ==============================================
 
-  signInWithGoogle() async {
-    final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
+  // signInWithGoogle() async {
+  //   final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
 
-    final GoogleSignInAuthentication? googleAuth =
-        await googleUser?.authentication;
+  //   final GoogleSignInAuthentication? googleAuth =
+  //       await googleUser?.authentication;
 
-    final credential = GoogleAuthProvider.credential(
-      accessToken: googleAuth?.accessToken,
-      idToken: googleAuth?.idToken,
-    );
+  //   final credential = GoogleAuthProvider.credential(
+  //     accessToken: googleAuth?.accessToken,
+  //     idToken: googleAuth?.idToken,
+  //   );
 
-    await FirebaseAuth.instance.signInWithCredential(credential).then(
-          (value) => {
-            if (value.user != null) {firstLogin()},
-          },
-        );
-  }
+  //   await FirebaseAuth.instance.signInWithCredential(credential).then(
+  //         (value) => {
+  //           if (value.user != null) {firstLogin()},
+  //         },
+  //       );
+  // }
 
   // =========================================================  Checking if email is verified =======================================
 

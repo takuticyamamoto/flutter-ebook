@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 
 // import 'CreateProfilePage.dart';
 import 'LoginPage.dart';
-import 'package:flutter_localization/flutter_localization.dart';
+// import 'package:flutter_localization/flutter_localization.dart';
 
 class SignUpPage extends StatefulWidget {
   @override
@@ -14,7 +14,7 @@ class SignUpPage extends StatefulWidget {
 class _SignUpPage extends State<SignUpPage> {
   String email = '';
   String pass = '';
-  final FlutterLocalization _localization = FlutterLocalization.instance;
+  // final FlutterLocalization _localization = FlutterLocalization.instance;
   final auth = FirebaseAuth.instance;
   bool notvisible = true;
   bool notVisiblePassword = true;
@@ -115,11 +115,11 @@ class _SignUpPage extends State<SignUpPage> {
 
   Future<void> setLanguage(String value) async {
     setState(() {
-      selectedLanguage = value;
-      _localization.translate(
-        value,
-        save: false,
-      ); // Assuming this is a function you want to trigger.
+      // selectedLanguage = value;
+      // _localization.translate(
+      //   value,
+      //   save: false,
+      // ); // Assuming this is a function you want to trigger.
     });
   }
 
@@ -145,6 +145,7 @@ class _SignUpPage extends State<SignUpPage> {
               ),
               child: Column(
                 children: [
+                  
                   // =========================================================  Sign Up =======================================================
                   Align(
                     alignment: Alignment.topLeft,

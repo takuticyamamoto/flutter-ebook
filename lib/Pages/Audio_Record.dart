@@ -50,7 +50,6 @@ class _AudioRecordScreenState extends State<AudioRecordScreen> {
     final fetchedAudioFiles = await getAudioFiles();
     setState(() {
       audioFiles = fetchedAudioFiles;
-      print('$audioFiles=============');
     });
   }
 

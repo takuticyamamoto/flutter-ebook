@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_ebook/Pages/PDFScreen.dart';
-import 'package:flutter_ebook/Pages/PDFXPage.dart';
+// import 'package:flutter_ebook/Pages/PDFScreen.dart';
+// import 'package:flutter_ebook/Pages/PDFXPage.dart';
 import 'package:flutter_ebook/Services/pdf_list.dart';
 import 'package:flutter_ebook/data/global.dart';
 import 'package:badges/badges.dart' as badges;
@@ -91,17 +91,17 @@ class _EbooklistpageState extends State<EBookListPage> {
                                   child: Text(path.basenameWithoutExtension(
                                       pdfFiles[index]["name"] ?? "Unknown"))),
                               onPressed: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) {
-                                      return Pdfscreen(
-                                        pdfName: pdfFiles[index]['name'] ?? '',
-                                        pdfURL: pdfFiles[index]['url'] ?? '',
-                                      );
-                                    },
-                                  ),
-                                );
+                                // Navigator.push(
+                                //   context,
+                                //   MaterialPageRoute(
+                                //     builder: (context) {
+                                //       return Pdfscreen(
+                                //         pdfName: pdfFiles[index]['name'] ?? '',
+                                //         pdfURL: pdfFiles[index]['url'] ?? '',
+                                //       );
+                                //     },
+                                //   ),
+                                // );
                               },
                             )),
                         SizedBox(

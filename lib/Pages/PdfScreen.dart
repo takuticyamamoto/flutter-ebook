@@ -46,7 +46,8 @@ class _PdfxpageState extends State<Pdfscreen> {
       DeviceOrientation.landscapeRight,
     ]);
 
-    await loadPdf(widget.pdfURL);
+    await loadPdf('http://192.168.133.183:5000/asdfas/audio_lesson_31_35.pdf');
+    // await loadPdf(widget.pdfURL);
     final status = await Permission.microphone.request();
     if (status != PermissionStatus.granted) {}
 

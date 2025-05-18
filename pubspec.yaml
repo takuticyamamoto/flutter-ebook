@@ -13,38 +13,49 @@ dependencies:
   flutter:
     sdk: flutter
   
-  cloud_firestore: ^5.6.3
-  firebase_core: ^3.11.0
-  firebase_auth: ^5.4.2
-  firebase_storage: ^12.4.2
-  flutter_otp_text_field: ^1.4.0+2
+
+  cloud_firestore: ^5.6.6
+  firebase_auth: ^5.5.2
+  firebase_core: ^3.13.0
+  firebase_storage: ^12.4.5
+  flutter_otp_text_field: ^1.5.1+1
   cupertino_icons: ^1.0.8
-  google_sign_in: ^6.2.2
-  flutter_bloc: ^9.0.0
+  flutter_bloc: ^9.1.0
   easy_localization: ^3.0.7+1
-  flutter_localization: ^0.3.1
   url_launcher: ^6.3.1
+  url_launcher_android: ^6.3.14
+  url_launcher_ios: ^6.3.3
   epub_view: ^3.2.0
   path_provider: ^2.1.5
+  path_provider_android: ^2.2.15
   flutter_pdfview: ^1.4.0
-  record: ^5.2.0
+  record: ^6.0.0
+  record_android: ^1.3.1
   just_audio: ^0.9.46
   path: ^1.9.0
   flutter_cached_pdfview: ^0.4.3
   sqflite: ^2.4.1
-  http: ^0.13.6
-  flutter_sound: ^9.2.13
-  permission_handler: ^11.3.1
-  pdfx: ^2.8.0
-  flutter_cache_manager: ^3.3.1
-  animated_icon: ^0.0.6
+  sqflite_android: ^2.4.0
+  http: ^1.3.0
+  flutter_sound: ^9.28.0
+  permission_handler: ^11.4.0
+  # pdfx: 2.5.0
+  pdfx: 
+    git:
+      url: 'https://github.com/ScerIO/packages.flutter' 
+      ref: '4be9de9ffed5398fd7d5f44bbb07dcd3d3f1711b'  
+      path: packages/pdfx
+
+  flutter_cache_manager: ^3.4.1
+  animated_icon: ^0.0.9
   percent_indicator: ^4.2.4
-  audioplayers: ^6.2.0
+  audioplayers: ^6.4.0
   flutter_use: ^0.0.4
-  flutter_smart_dialog: ^4.9.8+6
-  cloud_functions: ^5.3.0
-  badges: ^3.1.2
+  flutter_smart_dialog: ^4.9.8+7
   flutter_soloud: ^1.0.0
+  badges: ^3.1.2
+  cloud_functions: ^5.4.0
+  
 dev_dependencies:
   flutter_test:
     sdk: flutter

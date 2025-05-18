@@ -7,7 +7,6 @@ import 'firebase_options.dart';
 import 'package:flutter_ebook/data/global.dart';
 import 'package:flutter_ebook/Services/pdf_list.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
-import 'package:cloud_functions/cloud_functions.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();

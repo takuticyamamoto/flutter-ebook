@@ -16,6 +16,7 @@ import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter_ebook/widgets/business.dart';
 import 'package:flutter_ebook/widgets/custome.dart';
 import 'package:flutter_ebook/widgets/mydrawer.dart';
+import 'package:http/http.dart' as http;
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key, required this.title});
@@ -126,7 +127,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       onPressed: () {
                         Navigator.of(context).push(
                           MaterialPageRoute(
-                            builder: (context) => AudioDownloadScreen(),
+                            builder: (context) => Pdfscreen(pdfName: '', pdfURL: '',),
                             // (context) => EpubReaderScreen(filePath: ''),
                           ),
                         );
@@ -134,13 +135,16 @@ class _MyHomePageState extends State<MyHomePage> {
                       child: Text('get my data'),
                     ),
                     TextButton(
-                        onPressed: () {
-                          Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (context) => EmailVerificationPage(),
-                              // builder: (context) => AttachDialogBusiness(),
-                            ),
-                          );
+                        onPressed: () async {
+                          final response = await http
+                              .get(Uri.parse('http://192.168.133.183:5000/api/data'));
+                              print(response);
+                          // Navigator.of(context).push(
+                          //   MaterialPageRoute(
+                          //     builder: (context) => EmailVerificationPage(),
+                          //     // builder: (context) => AttachDialogBusiness(),
+                          //   ),
+                          // );
                         },
                         child: Text('data')),
                     TextButton(
